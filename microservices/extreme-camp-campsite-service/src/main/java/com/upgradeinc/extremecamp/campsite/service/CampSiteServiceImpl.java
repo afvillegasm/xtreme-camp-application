@@ -1,0 +1,371 @@
+package com.upgradeinc.extremecamp.campsite.service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.NoResultException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Service;
+
+import com.upgradeinc.extremecamp.campsite.common.Constants;
+import com.upgradeinc.extremecamp.campsite.dao.CampSiteDao;
+import com.upgradeinc.extremecamp.campsite.dto.CampSiteCRUDResponseDTO;
+import com.upgradeinc.extremecamp.campsite.dto.CampSiteDTO;
+import com.upgradeinc.extremecamp.campsite.dto.CampSiteListResponseDTO;
+import com.upgradeinc.extremecamp.campsite.dto.ErrorStatusDTO;
+import com.upgradeinc.extremecamp.campsite.entity.CampSite;
+
+@PropertySource("classpath:message.properties")
+@Service
+public class CampSiteServiceImpl implements CampSiteService{
+	
+	@Autowired
+	CampSiteDao dao;
+	
+	@Autowired
+	private Environment env;
+
+	@Override
+	public CampSiteCRUDResponseDTO create(CampSiteDTO dto) {
+		
+		try {
+			
+			List<CampSite> existsCampSiteWithName = dao.findByName(dto.getName());
+			
+			if(existsCampSiteWithName != null && existsCampSiteWithName.size() > 0) {
+				
+				/*validate if retrieved object is in status deleted*/
+				CampSite obj = existsCampSiteWithName.get(0);
+				if(obj.getStatus() != null && obj.getStatus().equals(Constants.DB_STATUS_DELETED)) {
+					
+					obj.setCreatedBy(dto.getUsername());
+					obj.setCreatedAt(new Date());
+					obj.setModifiedBy(dto.getUsername());
+					obj.setModifiedAt(new Date());
+					obj.setDescription(dto.getDescription());
+					obj.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
+					obj.setStatus(Constants.DB_STATUS_ACTIVE);
+					
+					dao.update(obj);
+					
+					CampSiteCRUDResponseDTO response = new CampSiteCRUDResponseDTO();
+					
+					response.setIdCampSite(obj.getId());
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					status.setErrorCode(env.getProperty("status.error.code.campsite.created.successful"));
+					status.setErrorMessage(env.getProperty("status.error.message.campsite.created.successful"));
+					response.setStatus(status);
+					
+					return response;
+					
+				}
+				
+				CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.already.exists"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.already.exists"));
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+			CampSite entity = new CampSite();
+			
+			entity.setName(dto.getName());
+			entity.setDescription(dto.getDescription());
+			entity.setFoundationDate(dto.getFoundationDate());
+			entity.setStatus(Constants.DB_STATUS_ACTIVE);
+			entity.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
+			entity.setCreatedBy(dto.getUsername());
+			entity.setCreatedAt(new Date());
+		
+			dao.create(entity);
+			
+			CampSiteCRUDResponseDTO response = new CampSiteCRUDResponseDTO();
+			
+			response.setIdCampSite(entity.getId());
+			ErrorStatusDTO status = new ErrorStatusDTO();
+			status.setErrorCode(env.getProperty("status.error.code.campsite.created.successful"));
+			status.setErrorMessage(env.getProperty("status.error.message.campsite.created.successful"));
+			response.setStatus(status);
+			
+			return response;
+			
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			
+			CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+			
+			ErrorStatusDTO status = new ErrorStatusDTO();
+			status.setErrorCode(env.getProperty("status.error.code.campsite.create.failed"));
+			status.setErrorMessage(env.getProperty("status.error.message.campsite.create.failed"));
+			errorResponse.setStatus(status);
+			
+			return errorResponse;
+			
+		}
+		
+	}
+
+	@Override
+	public CampSiteCRUDResponseDTO update(CampSiteDTO dto) {
+		
+		try {
+			
+			CampSite existsCampSiteWithName = dao.findById(dto.getId());
+			
+			if(existsCampSiteWithName != null) {
+				
+				existsCampSiteWithName.setName(dto.getName());
+				existsCampSiteWithName.setDescription(dto.getDescription());
+				existsCampSiteWithName.setFoundationDate(dto.getFoundationDate());
+				existsCampSiteWithName.setStatus(Constants.DB_STATUS_MODIFIED);
+				existsCampSiteWithName.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
+				existsCampSiteWithName.setModifiedBy(dto.getUsername());
+				existsCampSiteWithName.setModifiedAt(new Date());
+			
+				dao.update(existsCampSiteWithName);
+				
+				CampSiteCRUDResponseDTO response = new CampSiteCRUDResponseDTO();
+				
+				response.setIdCampSite(existsCampSiteWithName.getId());
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.updated.successful"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.updated.successful"));
+				response.setStatus(status);
+				
+				return response;
+				
+			} else {
+				
+				CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.doesnt.exist"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.doesnt.exist"));
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			
+			CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+			
+			ErrorStatusDTO status = new ErrorStatusDTO();
+			status.setErrorCode(env.getProperty("status.error.code.campsite.update.failed"));
+			status.setErrorMessage(env.getProperty("status.error.message.campsite.update.failed"));
+			errorResponse.setStatus(status);
+			
+			return errorResponse;
+			
+		}
+		
+	}
+
+	@Override
+	public CampSiteCRUDResponseDTO delete(CampSiteDTO dto) {
+		
+		try {
+			
+			CampSite existsCampSiteWithName = dao.findById(dto.getId());
+			
+			if(existsCampSiteWithName != null) {
+				
+				existsCampSiteWithName.setStatus(Constants.DB_STATUS_DELETED);
+				existsCampSiteWithName.setModifiedBy(dto.getUsername());
+				existsCampSiteWithName.setModifiedAt(new Date());
+			
+				dao.delete(existsCampSiteWithName);
+				
+				CampSiteCRUDResponseDTO response = new CampSiteCRUDResponseDTO();
+				
+				response.setIdCampSite(existsCampSiteWithName.getId());
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.deleted.successful"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.deleted.successful"));
+				response.setStatus(status);
+				
+				return response;
+				
+			} else {
+				
+				CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.doesnt.exist"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.doesnt.exist"));
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			
+			CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+			
+			ErrorStatusDTO status = new ErrorStatusDTO();
+			status.setErrorCode(env.getProperty("status.error.code.campsite.delete.failed"));
+			status.setErrorMessage(env.getProperty("status.error.message.campsite.delete.failed"));
+			errorResponse.setStatus(status);
+			
+			return errorResponse;
+			
+		}
+		
+	}
+
+	@Override
+	public CampSiteListResponseDTO findAll() {
+		
+		try {
+			
+			List<CampSite> lstExistingCampSites = dao.findAll();
+			
+			if(lstExistingCampSites != null && lstExistingCampSites.size() > 0) {
+				
+				CampSiteListResponseDTO response = new CampSiteListResponseDTO();
+				
+				//lstExistingCampSites.stream().map(x -> {new CampSiteDTO(x.getId(), x.getName(), x.getDescription(), x.getFoundationDate(), x.getMaxNumReservationsPerDay(), x.getCreatedBy());})
+				response.setResults(new ArrayList<CampSiteDTO>());
+				for(CampSite record: lstExistingCampSites) {
+					
+					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), record.getFoundationDate(), record.getMaxNumReservationsPerDay(), record.getCreatedBy());
+					
+					if(record.getModifiedBy() != null) {
+						obj.setUsername(record.getModifiedBy());
+					}
+					
+					response.getResults().add(obj);
+					
+				}
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.successful"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.successful"));
+				response.setStatus(status);
+				
+				return response;
+				
+			} else {
+				
+				CampSiteListResponseDTO errorResponse = new CampSiteListResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.notfound"));
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			
+			CampSiteListResponseDTO errorResponse = new CampSiteListResponseDTO();
+			
+			ErrorStatusDTO status = new ErrorStatusDTO();
+			status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.failed"));
+			status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.failed"));
+			errorResponse.setStatus(status);
+			
+			return errorResponse;
+			
+		}
+		
+	}
+
+	@Override
+	public CampSiteListResponseDTO findById(Long idCampSite) {
+		
+		try {
+			
+			CampSite existingCampSite = null;
+			
+			/*try {*/
+				
+			existingCampSite = dao.findById(idCampSite);
+				
+			/*} catch(NoResultException ex) {
+				
+				CampSiteListResponseDTO errorResponse = new CampSiteListResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.notfound"));
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}*/
+			
+			if(existingCampSite != null) {
+				
+				CampSiteListResponseDTO response = new CampSiteListResponseDTO();
+				
+				//lstExistingCampSites.stream().map(x -> {new CampSiteDTO(x.getId(), x.getName(), x.getDescription(), x.getFoundationDate(), x.getMaxNumReservationsPerDay(), x.getCreatedBy());})
+				response.setResults(new ArrayList<CampSiteDTO>());
+				
+					
+				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), existingCampSite.getFoundationDate(), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getCreatedBy());
+					
+				if(existingCampSite.getModifiedBy() != null) {
+					obj.setUsername(existingCampSite.getModifiedBy());
+				}
+					
+				response.getResults().add(obj);
+					
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.successful"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.successful"));
+				response.setStatus(status);
+				
+				return response;
+				
+			} else {
+				
+				CampSiteListResponseDTO errorResponse = new CampSiteListResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.notfound"));
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+		} catch (Exception e) {
+
+			e.printStackTrace();
+			
+			CampSiteListResponseDTO errorResponse = new CampSiteListResponseDTO();
+			
+			ErrorStatusDTO status = new ErrorStatusDTO();
+			status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.failed"));
+			status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.failed"));
+			errorResponse.setStatus(status);
+			
+			return errorResponse;
+			
+		}
+		
+	}
+
+}
