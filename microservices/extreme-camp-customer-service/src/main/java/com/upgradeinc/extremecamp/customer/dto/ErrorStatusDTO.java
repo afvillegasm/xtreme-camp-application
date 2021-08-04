@@ -1,4 +1,4 @@
-package com.upgradeinc.extremecamp.campsite.dto;
+package com.upgradeinc.extremecamp.customer.dto;
 
 public class ErrorStatusDTO {
 	
@@ -23,6 +23,6 @@ public class ErrorStatusDTO {
 	}
 	public void setHttpStatusCode(int httpStatusCode) {
 		this.httpStatusCode = httpStatusCode;
-	}	
+	}
 
 }

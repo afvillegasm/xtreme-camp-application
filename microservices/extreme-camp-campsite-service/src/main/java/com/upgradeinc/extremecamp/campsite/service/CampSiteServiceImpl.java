@@ -9,6 +9,7 @@ import javax.persistence.NoResultException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.upgradeinc.extremecamp.campsite.common.Constants;
@@ -42,9 +43,9 @@ public class CampSiteServiceImpl implements CampSiteService{
 				CampSite obj = existsCampSiteWithName.get(0);
 				if(obj.getStatus() != null && obj.getStatus().equals(Constants.DB_STATUS_DELETED)) {
 					
-					obj.setCreatedBy(dto.getUsername());
+					obj.setCreatedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 					obj.setCreatedAt(new Date());
-					obj.setModifiedBy(dto.getUsername());
+					obj.setModifiedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 					obj.setModifiedAt(new Date());
 					obj.setDescription(dto.getDescription());
 					obj.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
@@ -58,6 +59,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 					ErrorStatusDTO status = new ErrorStatusDTO();
 					status.setErrorCode(env.getProperty("status.error.code.campsite.created.successful"));
 					status.setErrorMessage(env.getProperty("status.error.message.campsite.created.successful"));
+					status.setHttpStatusCode(HttpStatus.OK.value());
 					response.setStatus(status);
 					
 					return response;
@@ -69,6 +71,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.already.exists"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.already.exists"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
 				errorResponse.setStatus(status);
 				
 				return errorResponse;
@@ -82,7 +85,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			entity.setFoundationDate(dto.getFoundationDate());
 			entity.setStatus(Constants.DB_STATUS_ACTIVE);
 			entity.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
-			entity.setCreatedBy(dto.getUsername());
+			entity.setCreatedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 			entity.setCreatedAt(new Date());
 		
 			dao.create(entity);
@@ -93,6 +96,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.campsite.created.successful"));
 			status.setErrorMessage(env.getProperty("status.error.message.campsite.created.successful"));
+			status.setHttpStatusCode(HttpStatus.OK.value());
 			response.setStatus(status);
 			
 			return response;
@@ -106,6 +110,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.campsite.create.failed"));
 			status.setErrorMessage(env.getProperty("status.error.message.campsite.create.failed"));
+			status.setHttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			errorResponse.setStatus(status);
 			
 			return errorResponse;
@@ -128,7 +133,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				existsCampSiteWithName.setFoundationDate(dto.getFoundationDate());
 				existsCampSiteWithName.setStatus(Constants.DB_STATUS_MODIFIED);
 				existsCampSiteWithName.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
-				existsCampSiteWithName.setModifiedBy(dto.getUsername());
+				existsCampSiteWithName.setModifiedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 				existsCampSiteWithName.setModifiedAt(new Date());
 			
 				dao.update(existsCampSiteWithName);
@@ -139,6 +144,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.updated.successful"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.updated.successful"));
+				status.setHttpStatusCode(HttpStatus.OK.value());
 				response.setStatus(status);
 				
 				return response;
@@ -150,6 +156,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.doesnt.exist"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.doesnt.exist"));
+				status.setHttpStatusCode(HttpStatus.NOT_FOUND.value());
 				errorResponse.setStatus(status);
 				
 				return errorResponse;
@@ -165,6 +172,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.campsite.update.failed"));
 			status.setErrorMessage(env.getProperty("status.error.message.campsite.update.failed"));
+			status.setHttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			errorResponse.setStatus(status);
 			
 			return errorResponse;
@@ -183,7 +191,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			if(existsCampSiteWithName != null) {
 				
 				existsCampSiteWithName.setStatus(Constants.DB_STATUS_DELETED);
-				existsCampSiteWithName.setModifiedBy(dto.getUsername());
+				existsCampSiteWithName.setModifiedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 				existsCampSiteWithName.setModifiedAt(new Date());
 			
 				dao.delete(existsCampSiteWithName);
@@ -194,6 +202,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.deleted.successful"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.deleted.successful"));
+				status.setHttpStatusCode(HttpStatus.OK.value());
 				response.setStatus(status);
 				
 				return response;
@@ -205,6 +214,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.doesnt.exist"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.doesnt.exist"));
+				status.setHttpStatusCode(HttpStatus.NOT_FOUND.value());
 				errorResponse.setStatus(status);
 				
 				return errorResponse;
@@ -220,6 +230,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.campsite.delete.failed"));
 			status.setErrorMessage(env.getProperty("status.error.message.campsite.delete.failed"));
+			status.setHttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			errorResponse.setStatus(status);
 			
 			return errorResponse;
@@ -243,11 +254,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				response.setResults(new ArrayList<CampSiteDTO>());
 				for(CampSite record: lstExistingCampSites) {
 					
-					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), record.getFoundationDate(), record.getMaxNumReservationsPerDay(), record.getCreatedBy());
-					
-					if(record.getModifiedBy() != null) {
-						obj.setUsername(record.getModifiedBy());
-					}
+					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), record.getFoundationDate(), record.getMaxNumReservationsPerDay());
 					
 					response.getResults().add(obj);
 					
@@ -256,6 +263,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.successful"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.successful"));
+				status.setHttpStatusCode(HttpStatus.OK.value());
 				response.setStatus(status);
 				
 				return response;
@@ -267,6 +275,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.notfound"));
+				status.setHttpStatusCode(HttpStatus.NOT_FOUND.value());
 				errorResponse.setStatus(status);
 				
 				return errorResponse;
@@ -282,6 +291,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.failed"));
 			status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.failed"));
+			status.setHttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			errorResponse.setStatus(status);
 			
 			return errorResponse;
@@ -322,11 +332,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				response.setResults(new ArrayList<CampSiteDTO>());
 				
 					
-				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), existingCampSite.getFoundationDate(), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getCreatedBy());
-					
-				if(existingCampSite.getModifiedBy() != null) {
-					obj.setUsername(existingCampSite.getModifiedBy());
-				}
+				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), existingCampSite.getFoundationDate(), existingCampSite.getMaxNumReservationsPerDay());
 					
 				response.getResults().add(obj);
 					
@@ -334,6 +340,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.successful"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.successful"));
+				status.setHttpStatusCode(HttpStatus.OK.value());
 				response.setStatus(status);
 				
 				return response;
@@ -345,6 +352,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
 				status.setErrorMessage(env.getProperty("status.error.message.campsite.notfound"));
+				status.setHttpStatusCode(HttpStatus.NOT_FOUND.value());
 				errorResponse.setStatus(status);
 				
 				return errorResponse;
@@ -360,6 +368,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.campsite.retrieve.failed"));
 			status.setErrorMessage(env.getProperty("status.error.message.campsite.retrieve.failed"));
+			status.setHttpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
 			errorResponse.setStatus(status);
 			
 			return errorResponse;

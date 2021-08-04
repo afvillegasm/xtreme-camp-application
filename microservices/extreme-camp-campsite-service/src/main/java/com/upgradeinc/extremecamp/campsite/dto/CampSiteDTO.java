@@ -19,20 +19,17 @@ public class CampSiteDTO {
 	@NotNull
 	private Integer maxNumReservationsPerDay;
 	
-	private String username;
-	
 	public CampSiteDTO() {
 		
 	}
 	
-	public CampSiteDTO(Long id, String name, String description, Date foundationDate, Integer maxNumReservationsPerDay, String username) {
+	public CampSiteDTO(Long id, String name, String description, Date foundationDate, Integer maxNumReservationsPerDay) {
 		
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.foundationDate = foundationDate;
 		this.maxNumReservationsPerDay = maxNumReservationsPerDay;
-		this.username = username;
 		
 	}
 	
@@ -65,12 +62,6 @@ public class CampSiteDTO {
 	}
 	public void setMaxNumReservationsPerDay(Integer maxNumReservationsPerDay) {
 		this.maxNumReservationsPerDay = maxNumReservationsPerDay;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
 	}
 
 }

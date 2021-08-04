@@ -24,20 +24,26 @@ public class CampSiteRestController {
 	@RequestMapping(path = {"/campsites/create"},method = RequestMethod.POST)
 	public ResponseEntity<CampSiteCRUDResponseDTO> create(@RequestBody CampSiteDTO request){
 		
-		request.setUsername("ADMIN");/*FIXME PENDING LOGIN AUTHENTICATION*/
 		CampSiteCRUDResponseDTO response = campSiteService.create(request);
 		
-		return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.CREATED);
+		if(response != null && response.getStatus() != null) {
+			return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.valueOf(response.getStatus().getHttpStatusCode()));
+		} else {
+			return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
 	}
 	
 	@RequestMapping(path = {"/campsites/update/{id}"},method = RequestMethod.PUT)
 	public ResponseEntity<CampSiteCRUDResponseDTO> update(@PathVariable(name = "id") Long id, @RequestBody CampSiteDTO request){
 		
-		request.setUsername("ADMIN");/*FIXME PENDING LOGIN AUTHENTICATION*/
 		CampSiteCRUDResponseDTO response = campSiteService.update(request);
 		
-		return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.OK);
+		if(response != null && response.getStatus() != null) {
+			return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.valueOf(response.getStatus().getHttpStatusCode()));
+		} else {
+			return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
 	}
 	
@@ -46,12 +52,15 @@ public class CampSiteRestController {
 		
 		CampSiteDTO request = new CampSiteDTO();
 		
-		request.setUsername("ADMIN");/*FIXME PENDING LOGIN AUTHENTICATION*/
 		request.setId(id);
 		
 		CampSiteCRUDResponseDTO response = campSiteService.delete(request);
 		
-		return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.OK);
+		if(response != null && response.getStatus() != null) {
+			return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.valueOf(response.getStatus().getHttpStatusCode()));
+		} else {
+			return new ResponseEntity<CampSiteCRUDResponseDTO>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
 	}
 	
@@ -60,7 +69,11 @@ public class CampSiteRestController {
 		
 		CampSiteListResponseDTO response = campSiteService.findAll();
 		
-		return new ResponseEntity<CampSiteListResponseDTO>(response, HttpStatus.OK);
+		if(response != null && response.getStatus() != null) {
+			return new ResponseEntity<CampSiteListResponseDTO>(response, HttpStatus.valueOf(response.getStatus().getHttpStatusCode()));
+		} else {
+			return new ResponseEntity<CampSiteListResponseDTO>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
 	}
 	
@@ -69,7 +82,11 @@ public class CampSiteRestController {
 		
 		CampSiteListResponseDTO response = campSiteService.findById(id);
 		
-		return new ResponseEntity<CampSiteListResponseDTO>(response, HttpStatus.OK);
+		if(response != null && response.getStatus() != null) {
+			return new ResponseEntity<CampSiteListResponseDTO>(response, HttpStatus.valueOf(response.getStatus().getHttpStatusCode()));
+		} else {
+			return new ResponseEntity<CampSiteListResponseDTO>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
 	}
 
