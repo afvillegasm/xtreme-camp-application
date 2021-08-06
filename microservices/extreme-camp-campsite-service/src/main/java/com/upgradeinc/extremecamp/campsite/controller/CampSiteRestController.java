@@ -37,6 +37,7 @@ public class CampSiteRestController {
 	@RequestMapping(path = {"/campsites/update/{id}"},method = RequestMethod.PUT)
 	public ResponseEntity<CampSiteCRUDResponseDTO> update(@PathVariable(name = "id") Long id, @RequestBody CampSiteDTO request){
 		
+		request.setId(id);
 		CampSiteCRUDResponseDTO response = campSiteService.update(request);
 		
 		if(response != null && response.getStatus() != null) {

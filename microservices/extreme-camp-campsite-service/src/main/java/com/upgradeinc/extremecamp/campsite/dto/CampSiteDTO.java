@@ -18,18 +18,21 @@ public class CampSiteDTO {
 	private Date foundationDate;
 	@NotNull
 	private Integer maxNumReservationsPerDay;
+	@NotNull
+	private Integer maxNumDaysIncludedInDateRange;
 	
 	public CampSiteDTO() {
 		
 	}
 	
-	public CampSiteDTO(Long id, String name, String description, Date foundationDate, Integer maxNumReservationsPerDay) {
+	public CampSiteDTO(Long id, String name, String description, Date foundationDate, Integer maxNumReservationsPerDay, Integer maxNumDaysIncludedInDateRange) {
 		
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.foundationDate = foundationDate;
 		this.maxNumReservationsPerDay = maxNumReservationsPerDay;
+		this.maxNumDaysIncludedInDateRange = maxNumDaysIncludedInDateRange;
 		
 	}
 	
@@ -62,6 +65,12 @@ public class CampSiteDTO {
 	}
 	public void setMaxNumReservationsPerDay(Integer maxNumReservationsPerDay) {
 		this.maxNumReservationsPerDay = maxNumReservationsPerDay;
+	}
+	public Integer getMaxNumDaysIncludedInDateRange() {
+		return maxNumDaysIncludedInDateRange;
+	}
+	public void setMaxNumDaysIncludedInDateRange(Integer maxNumDaysIncludedInDateRange) {
+		this.maxNumDaysIncludedInDateRange = maxNumDaysIncludedInDateRange;
 	}
 
 }

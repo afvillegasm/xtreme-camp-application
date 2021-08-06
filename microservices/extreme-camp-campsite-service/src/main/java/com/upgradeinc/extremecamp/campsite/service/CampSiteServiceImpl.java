@@ -1,8 +1,11 @@
 package com.upgradeinc.extremecamp.campsite.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.persistence.NoResultException;
 
@@ -35,6 +38,21 @@ public class CampSiteServiceImpl implements CampSiteService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			Calendar cinit = Calendar.getInstance();
+			cinit.set(Calendar.HOUR_OF_DAY, 0);
+			cinit.set(Calendar.MINUTE, 0);
+			cinit.set(Calendar.SECOND, 0);
+			cinit.set(Calendar.MILLISECOND, 0);
+					
+			String[] formDate = isoFormat.format(dto.getFoundationDate()).split("-");
+			
+			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+			cinit.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+			
 			List<CampSite> existsCampSiteWithName = dao.findByName(dto.getName());
 			
 			if(existsCampSiteWithName != null && existsCampSiteWithName.size() > 0) {
@@ -49,6 +67,8 @@ public class CampSiteServiceImpl implements CampSiteService{
 					obj.setModifiedAt(new Date());
 					obj.setDescription(dto.getDescription());
 					obj.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
+					obj.setMaxNumDaysIncludedInDateRange(dto.getMaxNumDaysIncludedInDateRange());
+					obj.setFoundationDate(cinit.getTime());
 					obj.setStatus(Constants.DB_STATUS_ACTIVE);
 					
 					dao.update(obj);
@@ -82,9 +102,10 @@ public class CampSiteServiceImpl implements CampSiteService{
 			
 			entity.setName(dto.getName());
 			entity.setDescription(dto.getDescription());
-			entity.setFoundationDate(dto.getFoundationDate());
+			entity.setFoundationDate(cinit.getTime());
 			entity.setStatus(Constants.DB_STATUS_ACTIVE);
 			entity.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
+			entity.setMaxNumDaysIncludedInDateRange(dto.getMaxNumDaysIncludedInDateRange());
 			entity.setCreatedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 			entity.setCreatedAt(new Date());
 		
@@ -124,15 +145,31 @@ public class CampSiteServiceImpl implements CampSiteService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			Calendar cinit = Calendar.getInstance();
+			cinit.set(Calendar.HOUR_OF_DAY, 0);
+			cinit.set(Calendar.MINUTE, 0);
+			cinit.set(Calendar.SECOND, 0);
+			cinit.set(Calendar.MILLISECOND, 0);
+					
+			String[] formDate = isoFormat.format(dto.getFoundationDate()).split("-");
+			
+			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+			cinit.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+			
 			CampSite existsCampSiteWithName = dao.findById(dto.getId());
 			
 			if(existsCampSiteWithName != null) {
 				
 				existsCampSiteWithName.setName(dto.getName());
 				existsCampSiteWithName.setDescription(dto.getDescription());
-				existsCampSiteWithName.setFoundationDate(dto.getFoundationDate());
+				existsCampSiteWithName.setFoundationDate(cinit.getTime());
 				existsCampSiteWithName.setStatus(Constants.DB_STATUS_MODIFIED);
 				existsCampSiteWithName.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
+				existsCampSiteWithName.setMaxNumDaysIncludedInDateRange(dto.getMaxNumDaysIncludedInDateRange());
 				existsCampSiteWithName.setModifiedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 				existsCampSiteWithName.setModifiedAt(new Date());
 			
@@ -254,7 +291,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				response.setResults(new ArrayList<CampSiteDTO>());
 				for(CampSite record: lstExistingCampSites) {
 					
-					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), record.getFoundationDate(), record.getMaxNumReservationsPerDay());
+					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), record.getFoundationDate(), record.getMaxNumReservationsPerDay(), record.getMaxNumDaysIncludedInDateRange());
 					
 					response.getResults().add(obj);
 					
@@ -332,7 +369,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				response.setResults(new ArrayList<CampSiteDTO>());
 				
 					
-				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), existingCampSite.getFoundationDate(), existingCampSite.getMaxNumReservationsPerDay());
+				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), existingCampSite.getFoundationDate(), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getMaxNumDaysIncludedInDateRange());
 					
 				response.getResults().add(obj);
 					

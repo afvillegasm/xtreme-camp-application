@@ -1,8 +1,14 @@
 package com.upgradeinc.extremecamp.booking.dao;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -74,7 +80,7 @@ public class BookingDaoImpl implements BookingDao{
 	@Override
 	public Booking findByBookingCode(String bookingCode) throws Exception {
 		
-		Query q = em.createNamedQuery("Booking.findById", Booking.class);
+		Query q = em.createNamedQuery("Booking.findByBookingCode", Booking.class);
 		q.setParameter("bookingCode", bookingCode);
 		q.setParameter("status", Constants.DB_STATUS_DELETED);
 		List<Booking> lst = (List<Booking>)q.getResultList();
@@ -90,45 +96,63 @@ public class BookingDaoImpl implements BookingDao{
 	@Override
 	public boolean validateBookingAvailabilityForDateRange(Long idCampSite, Integer maxNumReservationsPerDay, Date bookingInitDate, Date bookingEndDate) throws Exception {
 		
+		SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+		isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Calendar cinit = Calendar.getInstance();
+		cinit.set(Calendar.HOUR_OF_DAY, 0);
+		cinit.set(Calendar.MINUTE, 0);
+		cinit.set(Calendar.SECOND, 0);
+		cinit.set(Calendar.MILLISECOND, 0);
+				
+		String[] formDate = isoFormat.format(bookingInitDate).split("-");
 		
+		cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+		cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+		cinit.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
 		
-		Query q = em.createNativeQuery(" SELECT COUNT(*) FROM "
-				+ " ( "
-				+ " SELECT COUNT(*) "
-				+ " FROM BOOKINGS o "
-				+ " WHERE o.IDCAMPSITE = :idCampSite AND o.BOOKINGINITDATE >= :initDate AND o.BOOKINGENDDATE <= :endDate AND o.STATUS <> :status "
-				+ " GROUP BY o.STATUS "
-				+ " HAVING COUNT(*) > :maxBookingsPerDay "
-				+ " UNION "
-				+ " SELECT COUNT(*) "
-				+ " FROM BOOKINGS o "
-				+ " WHERE o.IDCAMPSITE = :idCampSite AND o.BOOKINGENDDATE >= :initDate AND o.BOOKINGENDDATE <= :endDate AND o.STATUS <> :status "
-				+ " GROUP BY o.STATUS "
-				+ " HAVING COUNT(*) >= :maxBookingsPerDay "
-				+ " UNION "
-				+ " SELECT COUNT(*) "
-				+ " FROM BOOKINGS o "
-				+ " WHERE o.IDCAMPSITE = :idCampSite AND o.BOOKINGINITDATE <= :initDate AND o.BOOKINGENDDATE >= :endDate AND o.STATUS <> :status "
-				+ " GROUP BY o.STATUS "
-				+ " HAVING COUNT(*) >= :maxBookingsPerDay ) ");
+		Calendar cend = Calendar.getInstance();
+		cend.set(Calendar.HOUR_OF_DAY, 0);
+		cend.set(Calendar.MINUTE, 0);
+		cend.set(Calendar.SECOND, 0);
+		cend.set(Calendar.MILLISECOND, 0);
+				
+		formDate = isoFormat.format(bookingEndDate).split("-");
+		
+		cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+		cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+		cend.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+		
+		Query q = em.createQuery("select o from Booking o where o.idCampSite = :idCampSite and o.status <> :status and ( (o.bookingInitDate >= :bookingInitDate and o.bookingInitDate <= :bookingEndDate) or (o.bookingEndDate >= :bookingInitDate and o.bookingEndDate <= :bookingEndDate) or (o.bookingInitDate <= :bookingInitDate and o.bookingEndDate >= :bookingEndDate) or (o.bookingInitDate <= :bookingInitDate and o.bookingEndDate >= :bookingInitDate) or (o.bookingInitDate <= :bookingEndDate and o.bookingEndDate >= :bookingEndDate) )", Booking.class);
 		q.setParameter("idCampSite", idCampSite);
-		q.setParameter("maxBookingsPerDay", maxNumReservationsPerDay.longValue());
-		q.setParameter("initDate", bookingInitDate);
-		q.setParameter("endDate", bookingEndDate);
+		q.setParameter("bookingInitDate", cinit.getTime());
+		q.setParameter("bookingEndDate", cend.getTime());
 		q.setParameter("status", Constants.DB_STATUS_DELETED);
 		
-		List<Object[]> lst = (List<Object[]>)q.getResultList();
+		List<Booking> lst = (List<Booking>)q.getResultList();
 		
-		if(lst != null && lst.size() > 0) {
-			Object result = lst.get(0);
-			if(((BigInteger)result).compareTo(BigInteger.ZERO) > 0) {
-				return false;
-			} else {
-				return true;
-			}
-		}
+		/*validating bookings*/
+		Long sumOpenedRanges = lst.stream().filter(x -> x.getBookingInitDate().compareTo(cinit.getTime()) >= 0 && x.getBookingInitDate().compareTo(cend.getTime()) <= 0)
+                .count();
+			
+		Long sumClosedRanges = lst.stream().filter(x -> x.getBookingEndDate().compareTo(cinit.getTime()) >= 0 && x.getBookingEndDate().compareTo(cend.getTime()) <= 0)
+                .count();
 		
-		return true;
+		Long sumOpenCloseRanges = lst.stream().filter(x -> x.getBookingInitDate().compareTo(cinit.getTime()) <= 0 && x.getBookingEndDate().compareTo(cend.getTime()) >= 0)
+                .count();
+		
+		long sumOnlyIncludeInitRange = lst.stream().filter(x -> x.getBookingInitDate().compareTo(cinit.getTime()) <= 0 && x.getBookingEndDate().compareTo(cinit.getTime()) >= 0)
+                .count();
+		
+		long sumOnlyIncludeEndRange = lst.stream().filter(x -> x.getBookingInitDate().compareTo(cend.getTime()) <= 0 && x.getBookingEndDate().compareTo(cend.getTime()) >= 0)
+                .count();
+		
+		boolean availableDateRange = ( (sumOpenedRanges > maxNumReservationsPerDay) || 
+									 (sumClosedRanges >= maxNumReservationsPerDay) || 
+									 (sumOpenCloseRanges >= maxNumReservationsPerDay) || 
+									 (sumOnlyIncludeInitRange >= maxNumReservationsPerDay) || 
+									 (sumOnlyIncludeEndRange >= maxNumReservationsPerDay) ) ? false : true;
+		
+		return availableDateRange;
 		
 	}
 

@@ -35,6 +35,8 @@ public class CampSite {
 	private Date foundationDate;
 	@Column(name = "MAXNUMRESERVATIONSPERDAY", nullable = false)
 	private Integer maxNumReservationsPerDay;
+	@Column(name = "MAXNUMDAYSINCLUDEDINDATERANGE", nullable = false)
+	private Integer maxNumDaysIncludedInDateRange;
 	@Column(name = "STATUS", nullable = false)
 	private String status;
 	@Column(name = "CREATEDBY", nullable = false)
@@ -107,6 +109,11 @@ public class CampSite {
 	}
 	public void setModifiedAt(Date modifiedAt) {
 		this.modifiedAt = modifiedAt;
-	}	
-
+	}
+	public Integer getMaxNumDaysIncludedInDateRange() {
+		return maxNumDaysIncludedInDateRange;
+	}
+	public void setMaxNumDaysIncludedInDateRange(Integer maxNumDaysIncludedInDateRange) {
+		this.maxNumDaysIncludedInDateRange = maxNumDaysIncludedInDateRange;
+	}
 }

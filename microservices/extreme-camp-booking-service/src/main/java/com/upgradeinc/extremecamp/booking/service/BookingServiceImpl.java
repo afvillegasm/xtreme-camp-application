@@ -1,8 +1,11 @@
 package com.upgradeinc.extremecamp.booking.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,7 @@ import com.upgradeinc.extremecamp.booking.dto.BookingDTO;
 import com.upgradeinc.extremecamp.booking.dto.BookingListResponseDTO;
 import com.upgradeinc.extremecamp.booking.dto.CampSiteDTO;
 import com.upgradeinc.extremecamp.booking.dto.CampSiteListResponseDTO;
+import com.upgradeinc.extremecamp.booking.dto.CustomerListResponseDTO;
 import com.upgradeinc.extremecamp.booking.entity.Booking;
 import com.upgradeinc.extremecamp.booking.common.Constants;
 import com.upgradeinc.extremecamp.booking.dao.BookingDao;
@@ -47,7 +51,69 @@ public class BookingServiceImpl implements BookingService{
 		
 		try {
 			
-			List<Booking> existsBookingWithIdCampSiteIdCustomerBookingInitDateBookingEndDate = dao.findByIdCampSiteIdCustomerBookingInitDateBookingEndDate(dto.getIdCampSite(), dto.getIdCustomer(), dto.getBookingInitDate(), dto.getBookingEndDate());
+			/*validate idCampSite is active for booking*/
+			ResponseEntity<CampSiteListResponseDTO> resp = invokeCampSiteServiceFindById(dto.getIdCampSite());  
+			
+			if(resp == null) {
+				
+				BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.notfound"));
+				status.setHttpStatusCode(HttpStatus.NOT_FOUND.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+			/*validate idCustomer is active for booking*/
+			ResponseEntity<CustomerListResponseDTO> respCustomer = invokeCustomerServiceFindById(dto.getIdCustomer());  
+			
+			if(respCustomer == null) {
+				
+				BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.customer.notfound"));
+				status.setErrorMessage(env.getProperty("status.error.message.customer.notfound"));
+				status.setHttpStatusCode(HttpStatus.NOT_FOUND.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+			/*DateRange format*/
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			Calendar cinit = Calendar.getInstance();
+			cinit.set(Calendar.HOUR_OF_DAY, 0);
+			cinit.set(Calendar.MINUTE, 0);
+			cinit.set(Calendar.SECOND, 0);
+			cinit.set(Calendar.MILLISECOND, 0);
+					
+			String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+			
+			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+			cinit.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+			
+			Calendar cend = Calendar.getInstance();
+			cend.set(Calendar.HOUR_OF_DAY, 0);
+			cend.set(Calendar.MINUTE, 0);
+			cend.set(Calendar.SECOND, 0);
+			cend.set(Calendar.MILLISECOND, 0);
+					
+			formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+			
+			cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+			cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+			cend.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+			
+			List<Booking> existsBookingWithIdCampSiteIdCustomerBookingInitDateBookingEndDate = dao.findByIdCampSiteIdCustomerBookingInitDateBookingEndDate(dto.getIdCampSite(), dto.getIdCustomer(), cinit.getTime(), cend.getTime());
 			
 			if(existsBookingWithIdCampSiteIdCustomerBookingInitDateBookingEndDate != null && existsBookingWithIdCampSiteIdCustomerBookingInitDateBookingEndDate.size() > 0) {
 				
@@ -68,13 +134,35 @@ public class BookingServiceImpl implements BookingService{
 				
 			}
 			
+			/*DateRange validation before create booking*/
+			BookingAvailabilityForCampSiteDateRangeRequestDTO validationDTO = new BookingAvailabilityForCampSiteDateRangeRequestDTO();
+			validationDTO.setIdCampSite(dto.getIdCampSite());
+			validationDTO.setBookingInitDate(dto.getBookingInitDate());
+			validationDTO.setBookingEndDate(dto.getBookingEndDate());
+			
+			BookingAvailabilityForCampSiteDateRangeResponseDTO  validationResp = validateBookingAvailabilityForCampSiteDateRange(validationDTO);
+			
+			if(validationResp.getStatus() != null && validationResp.getStatus().getHttpStatusCode() != HttpStatus.OK.value()) {
+				
+				BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(validationResp.getStatus().getErrorCode());
+				status.setErrorMessage(validationResp.getStatus().getErrorMessage());
+				status.setHttpStatusCode(validationResp.getStatus().getHttpStatusCode());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
 			Booking entity = new Booking();
 			
 			entity.setIdCustomer(dto.getIdCustomer());
 			entity.setIdCampSite(dto.getIdCampSite());
 			entity.setBookingCode(UUID.randomUUID().toString());
-			entity.setBookingInitDate(dto.getBookingInitDate());
-			entity.setBookingEndDate(dto.getBookingEndDate());
+			entity.setBookingInitDate(cinit.getTime());
+			entity.setBookingEndDate(cend.getTime());
 			entity.setStatus(Constants.DB_STATUS_ACTIVE);
 			entity.setCreatedBy(env.getProperty("extremecamp.booking.application.dbuser"));
 			entity.setCreatedAt(new Date());
@@ -120,8 +208,60 @@ public class BookingServiceImpl implements BookingService{
 			
 			if(existsBookingWithId != null) {
 				
-				existsBookingWithId.setBookingInitDate(dto.getBookingInitDate());
-				existsBookingWithId.setBookingEndDate(dto.getBookingEndDate());
+				/*DateRange format*/
+				SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+				isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+				Calendar cinit = Calendar.getInstance();
+				cinit.set(Calendar.HOUR_OF_DAY, 0);
+				cinit.set(Calendar.MINUTE, 0);
+				cinit.set(Calendar.SECOND, 0);
+				cinit.set(Calendar.MILLISECOND, 0);
+						
+				String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+				
+				cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+				cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+				cinit.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+				
+				Calendar cend = Calendar.getInstance();
+				cend.set(Calendar.HOUR_OF_DAY, 0);
+				cend.set(Calendar.MINUTE, 0);
+				cend.set(Calendar.SECOND, 0);
+				cend.set(Calendar.MILLISECOND, 0);
+						
+				formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+				
+				cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+				cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+				cend.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+				
+				/*DateRange validation before create booking*/
+				BookingAvailabilityForCampSiteDateRangeRequestDTO validationDTO = new BookingAvailabilityForCampSiteDateRangeRequestDTO();
+				validationDTO.setIdCampSite(dto.getIdCampSite());
+				validationDTO.setBookingInitDate(dto.getBookingInitDate());
+				validationDTO.setBookingEndDate(dto.getBookingEndDate());
+				
+				BookingAvailabilityForCampSiteDateRangeResponseDTO  validationResp = validateBookingAvailabilityForCampSiteDateRange(validationDTO);
+				
+				if(validationResp.getStatus() != null && validationResp.getStatus().getHttpStatusCode() != HttpStatus.OK.value()) {
+					
+					BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+					
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					status.setErrorCode(validationResp.getStatus().getErrorCode());
+					status.setErrorMessage(validationResp.getStatus().getErrorMessage());
+					status.setHttpStatusCode(validationResp.getStatus().getHttpStatusCode());
+					errorResponse.setStatus(status);
+					
+					return errorResponse;
+					
+				}
+				
+				/*preparing update*/
+				
+				existsBookingWithId.setBookingInitDate(cinit.getTime());
+				existsBookingWithId.setBookingEndDate(cend.getTime());
 				existsBookingWithId.setStatus(Constants.DB_STATUS_MODIFIED);
 				existsBookingWithId.setModifiedBy(env.getProperty("extremecamp.booking.application.dbuser"));
 				existsBookingWithId.setModifiedAt(new Date());
@@ -411,10 +551,58 @@ public class BookingServiceImpl implements BookingService{
 		
 		try {
 			
-			/*CampSite restService invoke for get the maxNumReservationsPerDay for the correponding idCampSite*/
-			ResponseEntity<CampSiteListResponseDTO> resp =  restTemplate.exchange("http://EXTREME-CAMP-CAMPSITE-SERVICE/extreme-camp/campsite-service/campsites/" + dto.getIdCampSite(), HttpMethod.GET, null, CampSiteListResponseDTO.class);
+			/*dateRange validation*/
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+			Calendar cinit = Calendar.getInstance();
+			cinit.set(Calendar.HOUR_OF_DAY, 0);
+			cinit.set(Calendar.MINUTE, 0);
+			cinit.set(Calendar.SECOND, 0);
+			cinit.set(Calendar.MILLISECOND, 0);
+					
+			String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
 			
-			if(resp.getBody().getStatus() != null && resp.getBody().getStatus().getHttpStatusCode() != HttpStatus.OK.value()) {
+			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+			cinit.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+			
+			Calendar cend = Calendar.getInstance();
+			cend.set(Calendar.HOUR_OF_DAY, 0);
+			cend.set(Calendar.MINUTE, 0);
+			cend.set(Calendar.SECOND, 0);
+			cend.set(Calendar.MILLISECOND, 0);
+					
+			formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+			
+			cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
+			cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
+			cend.set(Calendar.YEAR,Integer.parseInt(formDate[2]));
+			
+			if(cinit.compareTo(cend) > 0) {
+				
+				BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
+				
+				errorResponse.setAvailable(false);
+				errorResponse.setIdCampSite(dto.getIdCampSite());
+				errorResponse.setBookingInitDate(dto.getBookingInitDate());
+				errorResponse.setBookingEndDate(dto.getBookingEndDate());
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.initgreaterthanend"));
+				status.setErrorMessage(env.getProperty("status.error.message.booking.available.campsite.daterange.initgreaterthanend"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+			/*CampSite restService invoke for get the maxNumReservationsPerDay for the correponding idCampSite*/
+			
+			ResponseEntity<CampSiteListResponseDTO> resp = invokeCampSiteServiceFindById(dto.getIdCampSite());  
+			
+			if(resp == null) {
 				
 				BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
 				
@@ -438,6 +626,38 @@ public class BookingServiceImpl implements BookingService{
 				
 				CampSiteDTO campSite = resp.getBody().getResults().get(0);
 				maxNumReservationsPerDay = campSite.getMaxNumReservationsPerDay();
+				
+				Calendar cDaysAmount = Calendar.getInstance();
+				cDaysAmount.setTime(cinit.getTime());
+				int maxDaysIncludedinDateRange = campSite.getMaxNumDaysIncludedInDateRange();
+				int currentDaysDiff = 0;
+				
+				while(cDaysAmount.compareTo(cend) < 0) {
+					cDaysAmount.add(Calendar.DAY_OF_MONTH, 1);
+					currentDaysDiff++;
+				}
+				
+				if(currentDaysDiff > maxDaysIncludedinDateRange - 1) {
+					
+					BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
+					
+					errorResponse.setAvailable(false);
+					errorResponse.setIdCampSite(dto.getIdCampSite());
+					errorResponse.setBookingInitDate(dto.getBookingInitDate());
+					errorResponse.setBookingEndDate(dto.getBookingEndDate());
+					
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					String msg = env.getProperty("status.error.message.booking.available.campsite.daterange.rangeexceedsmaxdays");
+					msg = msg.replace("{n}", ""+maxDaysIncludedinDateRange);
+					status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.rangeexceedsmaxdays"));
+					status.setErrorMessage(msg);
+					status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+					errorResponse.setStatus(status);
+					
+					return errorResponse;
+					
+				}
+				
 				
 			}
 			
@@ -499,6 +719,50 @@ public class BookingServiceImpl implements BookingService{
 			errorResponse.setStatus(status);
 			
 			return errorResponse;
+			
+		}
+		
+	}
+	
+	private ResponseEntity<CampSiteListResponseDTO> invokeCampSiteServiceFindById(Long idCampSite) {
+		
+		try {
+			ResponseEntity<CampSiteListResponseDTO> resp =  restTemplate.exchange("http://EXTREME-CAMP-CAMPSITE-SERVICE/extreme-camp/campsite-service/campsites/" + idCampSite, HttpMethod.GET, null, CampSiteListResponseDTO.class);
+			
+			if(resp.getBody().getStatus() != null && resp.getBody().getStatus().getHttpStatusCode() != HttpStatus.OK.value()) {
+							
+				return null;
+				
+			} else {
+				
+				return resp;
+				
+			}
+		} catch(Exception e) {
+			
+			return null;
+			
+		}
+		
+	}
+	
+	private ResponseEntity<CustomerListResponseDTO> invokeCustomerServiceFindById(Long idCustomer) {
+		
+		try {
+			ResponseEntity<CustomerListResponseDTO> resp =  restTemplate.exchange("http://EXTREME-CAMP-CUSTOMER-SERVICE/extreme-camp/customer-service/customers/id/" + idCustomer, HttpMethod.GET, null, CustomerListResponseDTO.class);
+			
+			if(resp.getBody().getStatus() != null && resp.getBody().getStatus().getHttpStatusCode() != HttpStatus.OK.value()) {
+							
+				return null;
+				
+			} else {
+				
+				return resp;
+				
+			}
+		} catch(Exception e) {
+			
+			return null;
 			
 		}
 		

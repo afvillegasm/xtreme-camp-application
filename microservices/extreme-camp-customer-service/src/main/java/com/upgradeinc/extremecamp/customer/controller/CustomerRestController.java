@@ -37,6 +37,7 @@ public class CustomerRestController {
 	@RequestMapping(path = {"/customers/update/{id}"},method = RequestMethod.PUT)
 	public ResponseEntity<CustomerCRUDResponseDTO> update(@PathVariable(name = "id") Long id, @RequestBody CustomerDTO request){
 		
+		request.setId(id);
 		CustomerCRUDResponseDTO response = customerService.update(request);
 		
 		if(response != null && response.getStatus() != null) {
