@@ -2,30 +2,37 @@ package com.upgradeinc.extremecamp.booking.dto;
 
 import java.util.Date;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class CampSiteDTO {
 	
 	private Long id;
-	@NotNull
+	@NotNull(message = "{validation.error.message.name.notempty}")
+	@Size(min = 1, max = 100, message = "{validation.error.message.name.maxlength}")
 	private String name;
-	@NotNull
+	@NotNull(message = "{validation.error.message.description.notempty}")
+	@Size(min = 1, max = 300, message = "{validation.error.message.description.maxlength}")
 	private String description;
-	@JsonFormat(pattern = "dd-MM-yyyy")
-	@NotNull
-	private Date foundationDate;
-	@NotNull
+	@NotNull(message = "{validation.error.message.foundationdate.notempty}")
+	@Pattern(regexp="\\d{2}-\\d{2}-\\d{4}", message = "{validation.error.message.foundationdate.invalidformat}")
+	private String foundationDate;
+	@NotNull(message = "{validation.error.message.maxnumreservationsperday.notempty}")
+	@Min(value = 1, message = "{validation.error.message.maxnumreservationsperday.minlength}")
 	private Integer maxNumReservationsPerDay;
-	@NotNull
+	@NotNull(message = "{validation.error.message.maxnumdaysincludedindaterange.notempty}")
+	@Min(value = 1, message = "{validation.error.message.maxnumdaysincludedindaterange.minlength}")
 	private Integer maxNumDaysIncludedInDateRange;
 	
 	public CampSiteDTO() {
 		
 	}
 	
-	public CampSiteDTO(Long id, String name, String description, Date foundationDate, Integer maxNumReservationsPerDay, Integer maxNumDaysIncludedInDateRange) {
+	public CampSiteDTO(Long id, String name, String description, String foundationDate, Integer maxNumReservationsPerDay, Integer maxNumDaysIncludedInDateRange) {
 		
 		this.id = id;
 		this.name = name;
@@ -54,10 +61,10 @@ public class CampSiteDTO {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Date getFoundationDate() {
+	public String getFoundationDate() {
 		return foundationDate;
 	}
-	public void setFoundationDate(Date foundationDate) {
+	public void setFoundationDate(String foundationDate) {
 		this.foundationDate = foundationDate;
 	}
 	public Integer getMaxNumReservationsPerDay() {

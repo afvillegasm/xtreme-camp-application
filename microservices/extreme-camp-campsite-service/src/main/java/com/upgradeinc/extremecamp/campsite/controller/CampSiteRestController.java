@@ -1,8 +1,13 @@
 package com.upgradeinc.extremecamp.campsite.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +20,7 @@ import com.upgradeinc.extremecamp.campsite.dto.CampSiteListResponseDTO;
 import com.upgradeinc.extremecamp.campsite.service.CampSiteService;
 
 @RestController
+@Validated
 @RequestMapping(path = "/extreme-camp/campsite-service")
 public class CampSiteRestController {
 	
@@ -22,7 +28,7 @@ public class CampSiteRestController {
 	CampSiteService campSiteService;
 	
 	@RequestMapping(path = {"/campsites/create"},method = RequestMethod.POST)
-	public ResponseEntity<CampSiteCRUDResponseDTO> create(@RequestBody CampSiteDTO request){
+	public ResponseEntity<CampSiteCRUDResponseDTO> create(@Valid @RequestBody CampSiteDTO request){
 		
 		CampSiteCRUDResponseDTO response = campSiteService.create(request);
 		
@@ -35,7 +41,8 @@ public class CampSiteRestController {
 	}
 	
 	@RequestMapping(path = {"/campsites/update/{id}"},method = RequestMethod.PUT)
-	public ResponseEntity<CampSiteCRUDResponseDTO> update(@PathVariable(name = "id") Long id, @RequestBody CampSiteDTO request){
+	public ResponseEntity<CampSiteCRUDResponseDTO> update(@PathVariable(name = "id") Long id, 
+														  @Valid @RequestBody CampSiteDTO request){
 		
 		request.setId(id);
 		CampSiteCRUDResponseDTO response = campSiteService.update(request);

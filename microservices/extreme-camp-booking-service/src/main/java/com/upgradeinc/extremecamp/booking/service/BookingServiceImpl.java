@@ -85,6 +85,35 @@ public class BookingServiceImpl implements BookingService{
 				
 			}
 			
+			/*validation dateformat*/
+			if(!isValidDateFormat(dto.getBookingInitDate())) {
+				
+				BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.booking.notavalidinitdate"));
+				status.setErrorMessage(env.getProperty("status.error.message.booking.notavalidinitdate"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+			if(!isValidDateFormat(dto.getBookingEndDate())) {
+				
+				BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.booking.notavalidenddate"));
+				status.setErrorMessage(env.getProperty("status.error.message.booking.notavalidenddate"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
 			/*DateRange format*/
 			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
 			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -95,7 +124,7 @@ public class BookingServiceImpl implements BookingService{
 			cinit.set(Calendar.SECOND, 0);
 			cinit.set(Calendar.MILLISECOND, 0);
 					
-			String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+			String[] formDate = dto.getBookingInitDate().split("-");
 			
 			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -107,7 +136,7 @@ public class BookingServiceImpl implements BookingService{
 			cend.set(Calendar.SECOND, 0);
 			cend.set(Calendar.MILLISECOND, 0);
 					
-			formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+			formDate = dto.getBookingEndDate().split("-");
 			
 			cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 			cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -137,8 +166,8 @@ public class BookingServiceImpl implements BookingService{
 			/*DateRange validation before create booking*/
 			BookingAvailabilityForCampSiteDateRangeRequestDTO validationDTO = new BookingAvailabilityForCampSiteDateRangeRequestDTO();
 			validationDTO.setIdCampSite(dto.getIdCampSite());
-			validationDTO.setBookingInitDate(dto.getBookingInitDate());
-			validationDTO.setBookingEndDate(dto.getBookingEndDate());
+			validationDTO.setBookingInitDate(dto.getBookingInitDate()/*cinit.getTime()*/);
+			validationDTO.setBookingEndDate(dto.getBookingEndDate()/*cend.getTime()*/);
 			
 			BookingAvailabilityForCampSiteDateRangeResponseDTO  validationResp = validateBookingAvailabilityForCampSiteDateRange(validationDTO);
 			
@@ -208,6 +237,35 @@ public class BookingServiceImpl implements BookingService{
 			
 			if(existsBookingWithId != null) {
 				
+				/*validation dateformat*/
+				if(!isValidDateFormat(dto.getBookingInitDate())) {
+					
+					BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+					
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					status.setErrorCode(env.getProperty("status.error.code.booking.notavalidinitdate"));
+					status.setErrorMessage(env.getProperty("status.error.message.booking.notavalidinitdate"));
+					status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+					errorResponse.setStatus(status);
+					
+					return errorResponse;
+					
+				}
+				
+				if(!isValidDateFormat(dto.getBookingEndDate())) {
+					
+					BookingCRUDResponseDTO errorResponse = new BookingCRUDResponseDTO();
+					
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					status.setErrorCode(env.getProperty("status.error.code.booking.notavalidenddate"));
+					status.setErrorMessage(env.getProperty("status.error.message.booking.notavalidenddate"));
+					status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+					errorResponse.setStatus(status);
+					
+					return errorResponse;
+					
+				}
+				
 				/*DateRange format*/
 				SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
 				isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -218,7 +276,8 @@ public class BookingServiceImpl implements BookingService{
 				cinit.set(Calendar.SECOND, 0);
 				cinit.set(Calendar.MILLISECOND, 0);
 						
-				String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+				//String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+				String[] formDate = dto.getBookingInitDate().split("-");
 				
 				cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 				cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -230,7 +289,8 @@ public class BookingServiceImpl implements BookingService{
 				cend.set(Calendar.SECOND, 0);
 				cend.set(Calendar.MILLISECOND, 0);
 						
-				formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+				//formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+				formDate = dto.getBookingEndDate().split("-");
 				
 				cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 				cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -239,8 +299,8 @@ public class BookingServiceImpl implements BookingService{
 				/*DateRange validation before create booking*/
 				BookingAvailabilityForCampSiteDateRangeRequestDTO validationDTO = new BookingAvailabilityForCampSiteDateRangeRequestDTO();
 				validationDTO.setIdCampSite(dto.getIdCampSite());
-				validationDTO.setBookingInitDate(dto.getBookingInitDate());
-				validationDTO.setBookingEndDate(dto.getBookingEndDate());
+				validationDTO.setBookingInitDate(dto.getBookingInitDate()/*cinit.getTime()*/);
+				validationDTO.setBookingEndDate(dto.getBookingEndDate()/*cend.getTime()*/);
 				
 				BookingAvailabilityForCampSiteDateRangeResponseDTO  validationResp = validateBookingAvailabilityForCampSiteDateRange(validationDTO);
 				
@@ -376,13 +436,16 @@ public class BookingServiceImpl implements BookingService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			
 			List<Booking> lstExistingBookings = dao.findAll();
 			
 			if(lstExistingBookings != null && lstExistingBookings.size() > 0) {
 				
 				BookingListResponseDTO response = new BookingListResponseDTO();
 				
-				response.setResults(lstExistingBookings.stream().map(x -> new BookingDTO(x.getId(), x.getIdCampSite(), x.getIdCustomer(), x.getBookingCode(), x.getBookingInitDate(), x.getBookingEndDate())).collect(Collectors.toList()));
+				response.setResults(lstExistingBookings.stream().map(x -> new BookingDTO(x.getId(), x.getIdCampSite(), x.getIdCustomer(), x.getBookingCode(), isoFormat.format(x.getBookingInitDate()), isoFormat.format(x.getBookingEndDate()))).collect(Collectors.toList()));
 				
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.booking.retrieve.successful"));
@@ -429,6 +492,9 @@ public class BookingServiceImpl implements BookingService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			
 			Booking existingBooking = null;
 				
 			existingBooking = dao.findById(id);
@@ -440,7 +506,7 @@ public class BookingServiceImpl implements BookingService{
 				response.setResults(new ArrayList<BookingDTO>());
 				
 					
-				BookingDTO obj = new BookingDTO(existingBooking.getId(), existingBooking.getIdCampSite(), existingBooking.getIdCustomer(), existingBooking.getBookingCode(), existingBooking.getBookingInitDate(), existingBooking.getBookingEndDate());
+				BookingDTO obj = new BookingDTO(existingBooking.getId(), existingBooking.getIdCampSite(), existingBooking.getIdCustomer(), existingBooking.getBookingCode(), isoFormat.format(existingBooking.getBookingInitDate()), isoFormat.format(existingBooking.getBookingEndDate()));
 					
 				response.getResults().add(obj);
 					
@@ -490,6 +556,9 @@ public class BookingServiceImpl implements BookingService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			
 			Booking existingBooking = null;
 				
 			existingBooking = dao.findByBookingCode(bookingCode);
@@ -501,7 +570,7 @@ public class BookingServiceImpl implements BookingService{
 				response.setResults(new ArrayList<BookingDTO>());
 				
 					
-				BookingDTO obj = new BookingDTO(existingBooking.getId(), existingBooking.getIdCampSite(), existingBooking.getIdCustomer(), existingBooking.getBookingCode(), existingBooking.getBookingInitDate(), existingBooking.getBookingEndDate());
+				BookingDTO obj = new BookingDTO(existingBooking.getId(), existingBooking.getIdCampSite(), existingBooking.getIdCustomer(), existingBooking.getBookingCode(), isoFormat.format(existingBooking.getBookingInitDate()), isoFormat.format(existingBooking.getBookingEndDate()));
 					
 				response.getResults().add(obj);
 					
@@ -551,6 +620,35 @@ public class BookingServiceImpl implements BookingService{
 		
 		try {
 			
+			/*validation dateformat*/
+			if(!isValidDateFormat(dto.getBookingInitDate())) {
+				
+				BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.booking.notavalidinitdate"));
+				status.setErrorMessage(env.getProperty("status.error.message.booking.notavalidinitdate"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
+			if(!isValidDateFormat(dto.getBookingEndDate())) {
+				
+				BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.booking.notavalidenddate"));
+				status.setErrorMessage(env.getProperty("status.error.message.booking.notavalidenddate"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			
 			/*dateRange validation*/
 			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
 			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -561,7 +659,8 @@ public class BookingServiceImpl implements BookingService{
 			cinit.set(Calendar.SECOND, 0);
 			cinit.set(Calendar.MILLISECOND, 0);
 					
-			String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+			//String[] formDate = isoFormat.format(dto.getBookingInitDate()).split("-");
+			String[] formDate = dto.getBookingInitDate().split("-");
 			
 			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -573,7 +672,8 @@ public class BookingServiceImpl implements BookingService{
 			cend.set(Calendar.SECOND, 0);
 			cend.set(Calendar.MILLISECOND, 0);
 					
-			formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+			//formDate = isoFormat.format(dto.getBookingEndDate()).split("-");
+			formDate = dto.getBookingEndDate().split("-");
 			
 			cend.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 			cend.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -585,8 +685,8 @@ public class BookingServiceImpl implements BookingService{
 				
 				errorResponse.setAvailable(false);
 				errorResponse.setIdCampSite(dto.getIdCampSite());
-				errorResponse.setBookingInitDate(dto.getBookingInitDate());
-				errorResponse.setBookingEndDate(dto.getBookingEndDate());
+				errorResponse.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+				errorResponse.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);
 				
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.initgreaterthanend"));
@@ -608,8 +708,8 @@ public class BookingServiceImpl implements BookingService{
 				
 				errorResponse.setAvailable(false);
 				errorResponse.setIdCampSite(dto.getIdCampSite());
-				errorResponse.setBookingInitDate(dto.getBookingInitDate());
-				errorResponse.setBookingEndDate(dto.getBookingEndDate());
+				errorResponse.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+				errorResponse.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);
 				
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.campsite.notfound"));
@@ -643,8 +743,8 @@ public class BookingServiceImpl implements BookingService{
 					
 					errorResponse.setAvailable(false);
 					errorResponse.setIdCampSite(dto.getIdCampSite());
-					errorResponse.setBookingInitDate(dto.getBookingInitDate());
-					errorResponse.setBookingEndDate(dto.getBookingEndDate());
+					errorResponse.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+					errorResponse.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);
 					
 					ErrorStatusDTO status = new ErrorStatusDTO();
 					String msg = env.getProperty("status.error.message.booking.available.campsite.daterange.rangeexceedsmaxdays");
@@ -663,7 +763,7 @@ public class BookingServiceImpl implements BookingService{
 			
 			boolean dateRangeAvailableForBooking = false;
 				
-			dateRangeAvailableForBooking = dao.validateBookingAvailabilityForDateRange(dto.getIdCampSite(), maxNumReservationsPerDay, dto.getBookingInitDate(), dto.getBookingEndDate());
+			dateRangeAvailableForBooking = dao.validateBookingAvailabilityForDateRange(dto.getIdCampSite(), maxNumReservationsPerDay, cinit.getTime()/*dto.getBookingInitDate()*/, cend.getTime()/*dto.getBookingEndDate()*/);
 			
 			if(dateRangeAvailableForBooking) {
 				
@@ -671,8 +771,8 @@ public class BookingServiceImpl implements BookingService{
 				
 				response.setAvailable(true);
 				response.setIdCampSite(dto.getIdCampSite());
-				response.setBookingInitDate(dto.getBookingInitDate());
-				response.setBookingEndDate(dto.getBookingEndDate());	
+				response.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+				response.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);	
 				
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.successful"));
@@ -688,8 +788,8 @@ public class BookingServiceImpl implements BookingService{
 				
 				errorResponse.setAvailable(false);
 				errorResponse.setIdCampSite(dto.getIdCampSite());
-				errorResponse.setBookingInitDate(dto.getBookingInitDate());
-				errorResponse.setBookingEndDate(dto.getBookingEndDate());
+				errorResponse.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+				errorResponse.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);
 				
 				ErrorStatusDTO status = new ErrorStatusDTO();
 				status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.notfound"));
@@ -709,8 +809,8 @@ public class BookingServiceImpl implements BookingService{
 			
 			errorResponse.setAvailable(false);
 			errorResponse.setIdCampSite(dto.getIdCampSite());
-			errorResponse.setBookingInitDate(dto.getBookingInitDate());
-			errorResponse.setBookingEndDate(dto.getBookingEndDate());
+			/*errorResponse.setBookingInitDate(dto.getBookingInitDate());
+			errorResponse.setBookingEndDate(dto.getBookingEndDate());*/
 			
 			ErrorStatusDTO status = new ErrorStatusDTO();
 			status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.failed"));
@@ -763,6 +863,31 @@ public class BookingServiceImpl implements BookingService{
 		} catch(Exception e) {
 			
 			return null;
+			
+		}
+		
+	}
+	
+	private boolean isValidDateFormat(String foundationDate) {
+		
+		try {
+			
+			String[] splitDate = foundationDate.split("-");
+			
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(splitDate[0]));
+			cal.set(Calendar.MONTH, Integer.parseInt(splitDate[1]) - 1);
+			cal.set(Calendar.YEAR, Integer.parseInt(splitDate[2]));
+			
+			if(cal.get(Calendar.DAY_OF_MONTH) != Integer.parseInt(splitDate[0]) || cal.get(Calendar.MONTH) != (Integer.parseInt(splitDate[1]) - 1) || cal.get(Calendar.YEAR) != Integer.parseInt(splitDate[2])) {
+				return false;
+			}
+			
+			return true;
+			
+		} catch(Exception e) {
+			
+			return false;
 			
 		}
 		

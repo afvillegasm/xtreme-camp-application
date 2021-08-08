@@ -9,7 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class BookingAvailabilityForCampSiteDateRangeResponseDTO {
 	
 	private Long idCampSite;
+	@JsonFormat(pattern = "dd-MM-yyyy")
 	private Date bookingInitDate;
+	@JsonFormat(pattern = "dd-MM-yyyy")
 	private Date bookingEndDate;
 	private boolean available;
 	ErrorStatusDTO status;

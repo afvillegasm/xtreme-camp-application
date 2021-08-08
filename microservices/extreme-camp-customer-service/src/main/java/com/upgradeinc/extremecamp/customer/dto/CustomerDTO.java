@@ -2,18 +2,23 @@ package com.upgradeinc.extremecamp.customer.dto;
 
 import java.util.Date;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class CustomerDTO {
 	
 	private Long id;
-	@NotNull
+	@NotNull(message = "{validation.error.message.firstname.notempty}")
+	@Size(min = 1, max = 100, message = "{validation.error.message.firstname.maxlength}")
 	private String firstName;
-	@NotNull
+	@NotNull(message = "{validation.error.message.lastname.notempty}")
+	@Size(min = 1, max = 100, message = "{validation.error.message.lastname.maxlength}")
 	private String lastName;
-	@NotNull
+	@NotNull(message = "{validation.error.message.email.notempty}")
+	@Email(message = "{validation.error.message.email.invalid}")
 	private String email;
 	
 	public CustomerDTO() {

@@ -1,8 +1,13 @@
 package com.upgradeinc.extremecamp.customer.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +19,7 @@ import com.upgradeinc.extremecamp.customer.dto.CustomerListResponseDTO;
 import com.upgradeinc.extremecamp.customer.service.CustomerService;
 
 @RestController
+@Validated
 @RequestMapping(path = "/extreme-camp/customer-service")
 public class CustomerRestController {
 
@@ -21,7 +27,7 @@ public class CustomerRestController {
 	CustomerService customerService;
 	
 	@RequestMapping(path = {"/customers/create"},method = RequestMethod.POST)
-	public ResponseEntity<CustomerCRUDResponseDTO> create(@RequestBody CustomerDTO request){
+	public ResponseEntity<CustomerCRUDResponseDTO> create(@Valid @RequestBody CustomerDTO request){
 		
 		CustomerCRUDResponseDTO response = customerService.create(request);
 		
@@ -35,7 +41,7 @@ public class CustomerRestController {
 	}
 	
 	@RequestMapping(path = {"/customers/update/{id}"},method = RequestMethod.PUT)
-	public ResponseEntity<CustomerCRUDResponseDTO> update(@PathVariable(name = "id") Long id, @RequestBody CustomerDTO request){
+	public ResponseEntity<CustomerCRUDResponseDTO> update(@PathVariable(name = "id") Long id,@Valid @RequestBody CustomerDTO request){
 		
 		request.setId(id);
 		CustomerCRUDResponseDTO response = customerService.update(request);
@@ -79,7 +85,7 @@ public class CustomerRestController {
 	}
 	
 	@RequestMapping(path = {"/customers/id/{id}"},method = RequestMethod.GET)
-	public ResponseEntity<CustomerListResponseDTO> findById(@PathVariable(name = "id") Long id){
+	public ResponseEntity<CustomerListResponseDTO> findById(@Valid @NotNull(message = "{validation.error.message.id.notempty}") @PathVariable(name = "id") Long id){
 		
 		CustomerListResponseDTO response = customerService.findById(id);
 		
@@ -92,7 +98,9 @@ public class CustomerRestController {
 	}
 	
 	@RequestMapping(path = {"/customers/email/{email}"},method = RequestMethod.GET)
-	public ResponseEntity<CustomerListResponseDTO> findByEmail(@PathVariable(name = "email") String email){
+	public ResponseEntity<CustomerListResponseDTO> findByEmail(@Valid 
+															   @Email(message = "{validation.error.message.email.invalid}") 
+															   @PathVariable(name = "email") String email){
 		
 		CustomerListResponseDTO response = customerService.findByEmail(email);
 		

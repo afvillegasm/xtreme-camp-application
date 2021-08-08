@@ -1,8 +1,12 @@
 package com.upgradeinc.extremecamp.booking.controller;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Size;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +21,7 @@ import com.upgradeinc.extremecamp.booking.dto.BookingListResponseDTO;
 import com.upgradeinc.extremecamp.booking.service.BookingService;
 
 @RestController
+@Validated
 @RequestMapping(path = "/extreme-camp/booking-service")
 public class BookingRestController {
 	
@@ -24,7 +29,7 @@ public class BookingRestController {
 	BookingService bookingService;
 	
 	@RequestMapping(path = {"/bookings/validateBookingAvailabilityForCampSiteDateRange"},method = RequestMethod.POST)
-	public ResponseEntity<BookingAvailabilityForCampSiteDateRangeResponseDTO> validateBookingAvailabilityForCampSiteDateRange(@RequestBody BookingAvailabilityForCampSiteDateRangeRequestDTO request){
+	public ResponseEntity<BookingAvailabilityForCampSiteDateRangeResponseDTO> validateBookingAvailabilityForCampSiteDateRange(@Valid @RequestBody BookingAvailabilityForCampSiteDateRangeRequestDTO request){
 		
 		BookingAvailabilityForCampSiteDateRangeResponseDTO response = bookingService.validateBookingAvailabilityForCampSiteDateRange(request);
 		
@@ -38,7 +43,7 @@ public class BookingRestController {
 	}
 	
 	@RequestMapping(path = {"/bookings/createBooking"},method = RequestMethod.POST)
-	public ResponseEntity<BookingCRUDResponseDTO> createBooking(@RequestBody BookingDTO dto){
+	public ResponseEntity<BookingCRUDResponseDTO> createBooking(@Valid @RequestBody BookingDTO dto){
 		
 		BookingCRUDResponseDTO response = bookingService.create(dto);
 		
@@ -51,7 +56,7 @@ public class BookingRestController {
 	}
 	
 	@RequestMapping(path = {"/bookings/updateBooking/{bookingCode}"},method = RequestMethod.PUT)
-	public ResponseEntity<BookingCRUDResponseDTO> updateBooking(@PathVariable(name = "bookingCode") String bookingCode, @RequestBody BookingDTO dto){
+	public ResponseEntity<BookingCRUDResponseDTO> updateBooking(@PathVariable(name = "bookingCode") String bookingCode, @Valid @RequestBody BookingDTO dto){
 		
 		dto.setBookingCode(bookingCode);
 		BookingCRUDResponseDTO response = bookingService.update(dto);
@@ -81,7 +86,9 @@ public class BookingRestController {
 	}
 	
 	@RequestMapping(path = {"/bookings/bookingCode/{bookingCode}"},method = RequestMethod.GET)
-	public ResponseEntity<BookingListResponseDTO> findByBookingCode(@PathVariable(name = "bookingCode") String bookingCode) {
+	public ResponseEntity<BookingListResponseDTO> findByBookingCode(@Valid 
+																	@Size(min = 1, max = 64, message = "{validation.error.message.bookingcode.maxlength}") 
+																	@PathVariable(name = "bookingCode") String bookingCode) {
 		
 		BookingListResponseDTO response = bookingService.findByBookingCode(bookingCode);
 		

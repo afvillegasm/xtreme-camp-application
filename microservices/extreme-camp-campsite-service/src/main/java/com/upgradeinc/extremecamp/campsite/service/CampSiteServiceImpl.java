@@ -47,7 +47,22 @@ public class CampSiteServiceImpl implements CampSiteService{
 			cinit.set(Calendar.SECOND, 0);
 			cinit.set(Calendar.MILLISECOND, 0);
 					
-			String[] formDate = isoFormat.format(dto.getFoundationDate()).split("-");
+			/*validation dateformat*/
+			if(!isValidDateFormat(dto.getFoundationDate())) {
+				
+				CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.notavaliddate"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.notavaliddate"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			//String[] formDate = isoFormat.format(dto.getFoundationDate()).split("-");
+			String[] formDate = dto.getFoundationDate().split("-");
 			
 			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -153,8 +168,23 @@ public class CampSiteServiceImpl implements CampSiteService{
 			cinit.set(Calendar.MINUTE, 0);
 			cinit.set(Calendar.SECOND, 0);
 			cinit.set(Calendar.MILLISECOND, 0);
-					
-			String[] formDate = isoFormat.format(dto.getFoundationDate()).split("-");
+			
+			/*validation dateformat*/
+			if(!isValidDateFormat(dto.getFoundationDate())) {
+				
+				CampSiteCRUDResponseDTO errorResponse = new CampSiteCRUDResponseDTO();
+				
+				ErrorStatusDTO status = new ErrorStatusDTO();
+				status.setErrorCode(env.getProperty("status.error.code.campsite.notavaliddate"));
+				status.setErrorMessage(env.getProperty("status.error.message.campsite.notavaliddate"));
+				status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+				errorResponse.setStatus(status);
+				
+				return errorResponse;
+				
+			}
+			//String[] formDate = isoFormat.format(dto.getFoundationDate()).split("-");
+			String[] formDate = dto.getFoundationDate().split("-");
 			
 			cinit.set(Calendar.DAY_OF_MONTH,Integer.parseInt(formDate[0]));
 			cinit.set(Calendar.MONTH,Integer.parseInt(formDate[1]) - 1);
@@ -281,6 +311,9 @@ public class CampSiteServiceImpl implements CampSiteService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			
 			List<CampSite> lstExistingCampSites = dao.findAll();
 			
 			if(lstExistingCampSites != null && lstExistingCampSites.size() > 0) {
@@ -291,7 +324,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				response.setResults(new ArrayList<CampSiteDTO>());
 				for(CampSite record: lstExistingCampSites) {
 					
-					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), record.getFoundationDate(), record.getMaxNumReservationsPerDay(), record.getMaxNumDaysIncludedInDateRange());
+					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), isoFormat.format(record.getFoundationDate()), record.getMaxNumReservationsPerDay(), record.getMaxNumDaysIncludedInDateRange());
 					
 					response.getResults().add(obj);
 					
@@ -342,6 +375,9 @@ public class CampSiteServiceImpl implements CampSiteService{
 		
 		try {
 			
+			SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
+			isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+			
 			CampSite existingCampSite = null;
 			
 			/*try {*/
@@ -369,7 +405,7 @@ public class CampSiteServiceImpl implements CampSiteService{
 				response.setResults(new ArrayList<CampSiteDTO>());
 				
 					
-				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), existingCampSite.getFoundationDate(), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getMaxNumDaysIncludedInDateRange());
+				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), isoFormat.format(existingCampSite.getFoundationDate()), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getMaxNumDaysIncludedInDateRange());
 					
 				response.getResults().add(obj);
 					
@@ -409,6 +445,31 @@ public class CampSiteServiceImpl implements CampSiteService{
 			errorResponse.setStatus(status);
 			
 			return errorResponse;
+			
+		}
+		
+	}
+	
+	private boolean isValidDateFormat(String foundationDate) {
+		
+		try {
+			
+			String[] splitDate = foundationDate.split("-");
+			
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(splitDate[0]));
+			cal.set(Calendar.MONTH, Integer.parseInt(splitDate[1]) - 1);
+			cal.set(Calendar.YEAR, Integer.parseInt(splitDate[2]));
+			
+			if(cal.get(Calendar.DAY_OF_MONTH) != Integer.parseInt(splitDate[0]) || cal.get(Calendar.MONTH) != (Integer.parseInt(splitDate[1]) - 1) || cal.get(Calendar.YEAR) != Integer.parseInt(splitDate[2])) {
+				return false;
+			}
+			
+			return true;
+			
+		} catch(Exception e) {
+			
+			return false;
 			
 		}
 		
