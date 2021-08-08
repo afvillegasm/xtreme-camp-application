@@ -1,4 +1,4 @@
-package com.upgradeinc.extremecamp.booking.dto;
+package com.upgradeinc.extremecamp.api.dto;
 
 import java.util.Date;
 
@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 public class BookingAvailabilityForCampSiteDateRangeRequestDTO {
 	
-	@NotNull
+	@NotNull(message = "{validation.error.message.idcampsite.notempty}")
 	private Long idCampSite;
 	@NotNull
 	//@JsonFormat(pattern = "dd-MM-yyyy")

@@ -13,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class CampSiteDTO {
 	
 	private Long id;
@@ -24,6 +26,11 @@ public class CampSiteDTO {
 	private String description;
 	@NotNull(message = "{validation.error.message.foundationdate.notempty}")
 	@Pattern(regexp="\\d{2}-\\d{2}-\\d{4}", message = "{validation.error.message.foundationdate.invalidformat}")
+	@ApiModelProperty(
+			  value = "dateFormat: dd-MM-yyyy",
+			  name = "foundationDate",
+			  dataType = "String",
+			  example = "31-12-1999")
 	private String foundationDate;
 	@NotNull(message = "{validation.error.message.maxnumreservationsperday.notempty}")
 	@Min(value = 1, message = "{validation.error.message.maxnumreservationsperday.minlength}")

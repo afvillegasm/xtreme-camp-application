@@ -1,20 +1,17 @@
-package com.upgradeinc.extremecamp.booking.dto;
-
-import java.util.Date;
+package com.upgradeinc.extremecamp.api.dto;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
+import javax.validation.constraints.Size;
 
 import io.swagger.annotations.ApiModelProperty;
 
-public class BookingAvailabilityForCampSiteDateRangeRequestDTO {
+public class CreateBookingRequestDTO {
 	
-	@NotNull
+	@NotNull(message = "{validation.error.message.idcampsite.notempty}")
 	private Long idCampSite;
-	@NotNull
-	//@JsonFormat(pattern = "dd-MM-yyyy")
+	@NotNull(message = "{validation.error.message.idcustomer.notempty}")
+	private Long idCustomer;
 	@NotNull(message = "{validation.error.message.bookinginitdate.notempty}")
 	@Pattern(regexp="\\d{2}-\\d{2}-\\d{4}", message = "{validation.error.message.bookinginitdate.invalidformat}")
 	@ApiModelProperty(
@@ -37,6 +34,12 @@ public class BookingAvailabilityForCampSiteDateRangeRequestDTO {
 	}
 	public void setIdCampSite(Long idCampSite) {
 		this.idCampSite = idCampSite;
+	}
+	public Long getIdCustomer() {
+		return idCustomer;
+	}
+	public void setIdCustomer(Long idCustomer) {
+		this.idCustomer = idCustomer;
 	}
 	public String getBookingInitDate() {
 		return bookingInitDate;

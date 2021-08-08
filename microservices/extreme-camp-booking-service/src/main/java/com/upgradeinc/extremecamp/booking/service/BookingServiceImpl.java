@@ -730,6 +730,8 @@ public class BookingServiceImpl implements BookingService{
 				Calendar cDaysAmount = Calendar.getInstance();
 				cDaysAmount.setTime(cinit.getTime());
 				int maxDaysIncludedinDateRange = campSite.getMaxNumDaysIncludedInDateRange();
+				int minDaysBeforeInitDateForBooking = 1;/*TODO PARAMETRIZAR Y TOMAR DE DB CAMPSITES*/
+				int maxDaysBeforeInitDateForBooking = 30;/*TODO PARAMETRIZAR Y TOMAR DE DB CAMPSITES*/
 				int currentDaysDiff = 0;
 				
 				while(cDaysAmount.compareTo(cend) < 0) {
@@ -758,6 +760,63 @@ public class BookingServiceImpl implements BookingService{
 					
 				}
 				
+				/*VALIDATE MINDAYS BEFORE INITDATE FOR BOOKING*/
+				Calendar validateMinDays = Calendar.getInstance();
+				validateMinDays.set(Calendar.HOUR_OF_DAY, 0);
+				validateMinDays.set(Calendar.MINUTE, 0);
+				validateMinDays.set(Calendar.SECOND, 0);
+				validateMinDays.set(Calendar.MILLISECOND, 0);
+				validateMinDays.add(Calendar.DAY_OF_MONTH, minDaysBeforeInitDateForBooking);
+				
+				if(validateMinDays.compareTo(cinit) > 0) {
+					
+					BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
+					
+					errorResponse.setAvailable(false);
+					errorResponse.setIdCampSite(dto.getIdCampSite());
+					errorResponse.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+					errorResponse.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);
+					
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					String msg = env.getProperty("status.error.message.booking.available.campsite.daterange.mindaysbeforeinitdateforbookingexceeded");
+					msg = msg.replace("{n}", ""+minDaysBeforeInitDateForBooking);
+					status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.mindaysbeforeinitdateforbookingexceeded"));
+					status.setErrorMessage(msg);
+					status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+					errorResponse.setStatus(status);
+					
+					return errorResponse;
+					
+				}
+				
+				/*VALIDATE MAXDAYS BEFORE INITDATE FOR BOOKING*/
+				Calendar validateMaxDays = Calendar.getInstance();
+				validateMaxDays.set(Calendar.HOUR_OF_DAY, 0);
+				validateMaxDays.set(Calendar.MINUTE, 0);
+				validateMaxDays.set(Calendar.SECOND, 0);
+				validateMaxDays.set(Calendar.MILLISECOND, 0);
+				validateMaxDays.add(Calendar.DAY_OF_MONTH, maxDaysBeforeInitDateForBooking);
+				
+				if(validateMaxDays.compareTo(cinit) < 0) {
+					
+					BookingAvailabilityForCampSiteDateRangeResponseDTO errorResponse = new BookingAvailabilityForCampSiteDateRangeResponseDTO();
+					
+					errorResponse.setAvailable(false);
+					errorResponse.setIdCampSite(dto.getIdCampSite());
+					errorResponse.setBookingInitDate(cinit.getTime()/*dto.getBookingInitDate()*/);
+					errorResponse.setBookingEndDate(cend.getTime()/*dto.getBookingEndDate()*/);
+					
+					ErrorStatusDTO status = new ErrorStatusDTO();
+					String msg = env.getProperty("status.error.message.booking.available.campsite.daterange.maxdaysbeforeinitdateforbookingexceeded");
+					msg = msg.replace("{n}", ""+maxDaysBeforeInitDateForBooking);
+					status.setErrorCode(env.getProperty("status.error.code.booking.available.campsite.daterange.maxdaysbeforeinitdateforbookingexceeded"));
+					status.setErrorMessage(msg);
+					status.setHttpStatusCode(HttpStatus.BAD_REQUEST.value());
+					errorResponse.setStatus(status);
+					
+					return errorResponse;
+					
+				}
 				
 			}
 			

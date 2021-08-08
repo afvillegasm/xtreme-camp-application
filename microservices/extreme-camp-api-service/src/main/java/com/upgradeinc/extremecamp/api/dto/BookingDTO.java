@@ -1,4 +1,4 @@
-package com.upgradeinc.extremecamp.booking.dto;
+package com.upgradeinc.extremecamp.api.dto;
 
 import java.util.Date;
 
@@ -7,8 +7,6 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import io.swagger.annotations.ApiModelProperty;
 
 public class BookingDTO {
 	
@@ -21,19 +19,9 @@ public class BookingDTO {
 	private String bookingCode;
 	@NotNull(message = "{validation.error.message.bookinginitdate.notempty}")
 	@Pattern(regexp="\\d{2}-\\d{2}-\\d{4}", message = "{validation.error.message.bookinginitdate.invalidformat}")
-	@ApiModelProperty(
-			  value = "dateFormat: dd-MM-yyyy",
-			  name = "bookingInitDate",
-			  dataType = "String",
-			  example = "31-12-1999")
 	private String bookingInitDate;
 	@NotNull(message = "{validation.error.message.bookingenddate.notempty}")
 	@Pattern(regexp="\\d{2}-\\d{2}-\\d{4}", message = "{validation.error.message.bookingenddate.invalidformat}")
-	@ApiModelProperty(
-			  value = "dateFormat: dd-MM-yyyy",
-			  name = "bookingEndDate",
-			  dataType = "String",
-			  example = "31-12-1999")
 	private String bookingEndDate;
 	
 	public BookingDTO() {
