@@ -11,7 +11,7 @@ The solution consists in the definition of 5 microservices:
 
 # "DB SCRIPTS" FOLDER
 
-"DB SCRIPTS XTREMECAMP.txt" Contains the SQL Scripts for the creation of CAMPSITES, CUSTOMERS, BOOKINGS tables, and the insert sentence for the creation of CAMPSITE "VolcanoCamp".
+"DB SCRIPTS XTREMECAMP.txt" Contains the SQL Scripts (Using a H2 Database in Server Mode) for the creation of CAMPSITES, CUSTOMERS, BOOKINGS tables, and the insert sentence for the creation of CAMPSITE "VolcanoCamp".
 
 # "JMETER LOAD TEST PROJECT" FOLDER
 
