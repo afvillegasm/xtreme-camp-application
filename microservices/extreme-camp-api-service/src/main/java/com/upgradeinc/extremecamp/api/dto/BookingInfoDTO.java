@@ -15,6 +15,17 @@ public class BookingInfoDTO {
 	@Pattern(regexp="\\d{2}-\\d{2}-\\d{4}", message = "{validation.error.message.bookingenddate.invalidformat}")
 	private String bookingEndDate;
 	
+	public BookingInfoDTO() {
+
+	}
+	
+	public BookingInfoDTO(String bookingCode, String bookingInitDate, String bookingEndDate) {
+		this.bookingCode = bookingCode;
+		this.bookingInitDate = bookingInitDate;
+		this.bookingEndDate = bookingEndDate;
+	}
+
+
 	public String getBookingCode() {
 		return bookingCode;
 	}

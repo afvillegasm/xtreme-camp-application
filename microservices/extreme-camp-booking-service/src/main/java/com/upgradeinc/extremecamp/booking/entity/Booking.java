@@ -12,6 +12,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 @Entity
 @Table(name = "BOOKINGS")
@@ -51,6 +52,10 @@ public class Booking {
 	@Column(name = "MODIFIEDAT", nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date modifiedAt;
+	
+	@Version
+	@Column(name="OPTLOCK")
+	private Long version;
 	
 	public Long getId() {
 		return id;
@@ -117,6 +122,12 @@ public class Booking {
 	}
 	public void setModifiedAt(Date modifiedAt) {
 		this.modifiedAt = modifiedAt;
+	}
+	public Long getVersion() {
+		return version;
+	}
+	public void setVersion(Long version) {
+		this.version = version;
 	}
 
 }

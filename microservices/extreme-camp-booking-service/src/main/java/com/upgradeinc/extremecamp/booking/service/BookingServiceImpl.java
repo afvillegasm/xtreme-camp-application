@@ -16,6 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.upgradeinc.extremecamp.booking.dto.BookingAvailabilityForCampSiteDateRangeRequestDTO;
@@ -47,6 +49,7 @@ public class BookingServiceImpl implements BookingService{
 	RestTemplate restTemplate;
 
 	@Override
+	@Transactional
 	public BookingCRUDResponseDTO create(BookingDTO dto) {
 		
 		try {
@@ -229,6 +232,7 @@ public class BookingServiceImpl implements BookingService{
 	}
 
 	@Override
+	@Transactional
 	public BookingCRUDResponseDTO update(BookingDTO dto) {
 		
 		try {
@@ -373,6 +377,7 @@ public class BookingServiceImpl implements BookingService{
 	}
 
 	@Override
+	@Transactional(isolation = Isolation.REPEATABLE_READ)
 	public BookingCRUDResponseDTO delete(BookingDTO dto) {
 		
 		try {
@@ -616,6 +621,7 @@ public class BookingServiceImpl implements BookingService{
 	}
 
 	@Override
+	@Transactional
 	public BookingAvailabilityForCampSiteDateRangeResponseDTO validateBookingAvailabilityForCampSiteDateRange(BookingAvailabilityForCampSiteDateRangeRequestDTO dto) {
 		
 		try {
@@ -730,8 +736,8 @@ public class BookingServiceImpl implements BookingService{
 				Calendar cDaysAmount = Calendar.getInstance();
 				cDaysAmount.setTime(cinit.getTime());
 				int maxDaysIncludedinDateRange = campSite.getMaxNumDaysIncludedInDateRange();
-				int minDaysBeforeInitDateForBooking = 1;/*TODO PARAMETRIZAR Y TOMAR DE DB CAMPSITES*/
-				int maxDaysBeforeInitDateForBooking = 30;/*TODO PARAMETRIZAR Y TOMAR DE DB CAMPSITES*/
+				int minDaysBeforeInitDateForBooking = campSite.getMinDaysBeforeInitDateForBooking() == null ? 0: campSite.getMinDaysBeforeInitDateForBooking();
+				int maxDaysBeforeInitDateForBooking = campSite.getMaxDaysBeforeInitDateForBooking() == null ? 0 : campSite.getMaxDaysBeforeInitDateForBooking();
 				int currentDaysDiff = 0;
 				
 				while(cDaysAmount.compareTo(cend) < 0) {

@@ -11,11 +11,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.upgradeinc.extremecamp.booking.entity.Booking;
@@ -94,6 +98,8 @@ public class BookingDaoImpl implements BookingDao{
 	}
 
 	@Override
+	@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
+	@Lock(LockModeType.PESSIMISTIC_READ)
 	public boolean validateBookingAvailabilityForDateRange(Long idCampSite, Integer maxNumReservationsPerDay, Date bookingInitDate, Date bookingEndDate) throws Exception {
 		
 		SimpleDateFormat isoFormat = new SimpleDateFormat("dd-MM-yyyy");
@@ -127,6 +133,7 @@ public class BookingDaoImpl implements BookingDao{
 		q.setParameter("bookingInitDate", cinit.getTime());
 		q.setParameter("bookingEndDate", cend.getTime());
 		q.setParameter("status", Constants.DB_STATUS_DELETED);
+		//q.setLockMode(LockModeType.PESSIMISTIC_WRITE);
 		
 		List<Booking> lst = (List<Booking>)q.getResultList();
 		
@@ -151,6 +158,7 @@ public class BookingDaoImpl implements BookingDao{
 									 (sumOpenCloseRanges >= maxNumReservationsPerDay) || 
 									 (sumOnlyIncludeInitRange >= maxNumReservationsPerDay) || 
 									 (sumOnlyIncludeEndRange >= maxNumReservationsPerDay) ) ? false : true;
+		
 		
 		return availableDateRange;
 		

@@ -15,6 +15,7 @@ import com.upgradeinc.extremecamp.customer.common.Constants;
 import com.upgradeinc.extremecamp.customer.dao.CustomerDao;
 import com.upgradeinc.extremecamp.customer.dto.CustomerCRUDResponseDTO;
 import com.upgradeinc.extremecamp.customer.dto.ErrorStatusDTO;
+import com.upgradeinc.extremecamp.customer.dto.UpdateCustomerRequestDTO;
 import com.upgradeinc.extremecamp.customer.entity.Customer;
 import com.upgradeinc.extremecamp.customer.dto.CustomerCRUDResponseDTO;
 import com.upgradeinc.extremecamp.customer.dto.CustomerDTO;
@@ -120,7 +121,7 @@ public class CustomerServiceImpl implements CustomerService{
 	}
 
 	@Override
-	public CustomerCRUDResponseDTO update(CustomerDTO dto) {
+	public CustomerCRUDResponseDTO update(UpdateCustomerRequestDTO dto) {
 		
 		try {
 			
@@ -130,7 +131,7 @@ public class CustomerServiceImpl implements CustomerService{
 				
 				existsCustomerWithId.setFirstName(dto.getFirstName());
 				existsCustomerWithId.setLastName(dto.getLastName());
-				existsCustomerWithId.setEmail(dto.getEmail());
+				/*existsCustomerWithId.setEmail(dto.getEmail());*/
 				existsCustomerWithId.setStatus(Constants.DB_STATUS_MODIFIED);
 				existsCustomerWithId.setModifiedBy(env.getProperty("extremecamp.customer.application.dbuser"));
 				existsCustomerWithId.setModifiedAt(new Date());

@@ -37,6 +37,10 @@ public class CampSite {
 	private Integer maxNumReservationsPerDay;
 	@Column(name = "MAXNUMDAYSINCLUDEDINDATERANGE", nullable = false)
 	private Integer maxNumDaysIncludedInDateRange;
+	@Column(name = "MINDAYSBEFOREINITDATEBOOKING", nullable = false)
+	private Integer minDaysBeforeInitDateForBooking;
+	@Column(name = "MAXDAYSBEFOREINITDATEBOOKING", nullable = false)
+	private Integer maxDaysBeforeInitDateForBooking;
 	@Column(name = "STATUS", nullable = false)
 	private String status;
 	@Column(name = "CREATEDBY", nullable = false)
@@ -116,4 +120,17 @@ public class CampSite {
 	public void setMaxNumDaysIncludedInDateRange(Integer maxNumDaysIncludedInDateRange) {
 		this.maxNumDaysIncludedInDateRange = maxNumDaysIncludedInDateRange;
 	}
+	public Integer getMinDaysBeforeInitDateForBooking() {
+		return minDaysBeforeInitDateForBooking;
+	}
+	public void setMinDaysBeforeInitDateForBooking(Integer minDaysBeforeInitDateForBooking) {
+		this.minDaysBeforeInitDateForBooking = minDaysBeforeInitDateForBooking;
+	}
+	public Integer getMaxDaysBeforeInitDateForBooking() {
+		return maxDaysBeforeInitDateForBooking;
+	}
+	public void setMaxDaysBeforeInitDateForBooking(Integer maxDaysBeforeInitDateForBooking) {
+		this.maxDaysBeforeInitDateForBooking = maxDaysBeforeInitDateForBooking;
+	}
+	
 }

@@ -83,6 +83,8 @@ public class CampSiteServiceImpl implements CampSiteService{
 					obj.setDescription(dto.getDescription());
 					obj.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
 					obj.setMaxNumDaysIncludedInDateRange(dto.getMaxNumDaysIncludedInDateRange());
+					obj.setMinDaysBeforeInitDateForBooking(dto.getMinDaysBeforeInitDateForBooking());
+					obj.setMaxDaysBeforeInitDateForBooking(obj.getMaxDaysBeforeInitDateForBooking());
 					obj.setFoundationDate(cinit.getTime());
 					obj.setStatus(Constants.DB_STATUS_ACTIVE);
 					
@@ -121,6 +123,8 @@ public class CampSiteServiceImpl implements CampSiteService{
 			entity.setStatus(Constants.DB_STATUS_ACTIVE);
 			entity.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
 			entity.setMaxNumDaysIncludedInDateRange(dto.getMaxNumDaysIncludedInDateRange());
+			entity.setMinDaysBeforeInitDateForBooking(dto.getMinDaysBeforeInitDateForBooking());
+			entity.setMaxDaysBeforeInitDateForBooking(dto.getMaxDaysBeforeInitDateForBooking());
 			entity.setCreatedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 			entity.setCreatedAt(new Date());
 		
@@ -200,6 +204,8 @@ public class CampSiteServiceImpl implements CampSiteService{
 				existsCampSiteWithName.setStatus(Constants.DB_STATUS_MODIFIED);
 				existsCampSiteWithName.setMaxNumReservationsPerDay(dto.getMaxNumReservationsPerDay());
 				existsCampSiteWithName.setMaxNumDaysIncludedInDateRange(dto.getMaxNumDaysIncludedInDateRange());
+				existsCampSiteWithName.setMinDaysBeforeInitDateForBooking(dto.getMinDaysBeforeInitDateForBooking());
+				existsCampSiteWithName.setMaxDaysBeforeInitDateForBooking(dto.getMaxDaysBeforeInitDateForBooking());
 				existsCampSiteWithName.setModifiedBy(env.getProperty("extremecamp.campsite.application.dbuser"));
 				existsCampSiteWithName.setModifiedAt(new Date());
 			
@@ -320,11 +326,10 @@ public class CampSiteServiceImpl implements CampSiteService{
 				
 				CampSiteListResponseDTO response = new CampSiteListResponseDTO();
 				
-				//lstExistingCampSites.stream().map(x -> {new CampSiteDTO(x.getId(), x.getName(), x.getDescription(), x.getFoundationDate(), x.getMaxNumReservationsPerDay(), x.getCreatedBy());})
 				response.setResults(new ArrayList<CampSiteDTO>());
 				for(CampSite record: lstExistingCampSites) {
 					
-					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), isoFormat.format(record.getFoundationDate()), record.getMaxNumReservationsPerDay(), record.getMaxNumDaysIncludedInDateRange());
+					CampSiteDTO obj = new CampSiteDTO(record.getId(), record.getName(), record.getDescription(), isoFormat.format(record.getFoundationDate()), record.getMaxNumReservationsPerDay(), record.getMaxNumDaysIncludedInDateRange(), record.getMinDaysBeforeInitDateForBooking(), record.getMaxDaysBeforeInitDateForBooking());
 					
 					response.getResults().add(obj);
 					
@@ -401,11 +406,10 @@ public class CampSiteServiceImpl implements CampSiteService{
 				
 				CampSiteListResponseDTO response = new CampSiteListResponseDTO();
 				
-				//lstExistingCampSites.stream().map(x -> {new CampSiteDTO(x.getId(), x.getName(), x.getDescription(), x.getFoundationDate(), x.getMaxNumReservationsPerDay(), x.getCreatedBy());})
 				response.setResults(new ArrayList<CampSiteDTO>());
 				
 					
-				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), isoFormat.format(existingCampSite.getFoundationDate()), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getMaxNumDaysIncludedInDateRange());
+				CampSiteDTO obj = new CampSiteDTO(existingCampSite.getId(), existingCampSite.getName(), existingCampSite.getDescription(), isoFormat.format(existingCampSite.getFoundationDate()), existingCampSite.getMaxNumReservationsPerDay(), existingCampSite.getMaxNumDaysIncludedInDateRange(), existingCampSite.getMinDaysBeforeInitDateForBooking(), existingCampSite.getMaxDaysBeforeInitDateForBooking());
 					
 				response.getResults().add(obj);
 					

@@ -38,12 +38,18 @@ public class CampSiteDTO {
 	@NotNull(message = "{validation.error.message.maxnumdaysincludedindaterange.notempty}")
 	@Min(value = 1, message = "{validation.error.message.maxnumdaysincludedindaterange.minlength}")
 	private Integer maxNumDaysIncludedInDateRange;
+	@NotNull(message = "{validation.error.message.mindaysbeforeinitdateforbooking.notempty}")
+	@Min(value = 1, message = "{validation.error.message.mindaysbeforeinitdateforbooking.minlength}")
+	private Integer minDaysBeforeInitDateForBooking;
+	@NotNull(message = "{validation.error.message.maxdaysbeforeinitdateforbooking.notempty}")
+	@Min(value = 1, message = "{validation.error.message.maxdaysbeforeinitdateforbooking.minlength}")
+	private Integer maxDaysBeforeInitDateForBooking;
 	
 	public CampSiteDTO() {
 		
 	}
 	
-	public CampSiteDTO(Long id, String name, String description, String foundationDate, Integer maxNumReservationsPerDay, Integer maxNumDaysIncludedInDateRange) {
+	public CampSiteDTO(Long id, String name, String description, String foundationDate, Integer maxNumReservationsPerDay, Integer maxNumDaysIncludedInDateRange, Integer minDaysBeforeInitDateForBooking, Integer maxDaysBeforeInitDateForBooking) {
 		
 		this.id = id;
 		this.name = name;
@@ -51,6 +57,8 @@ public class CampSiteDTO {
 		this.foundationDate = foundationDate;
 		this.maxNumReservationsPerDay = maxNumReservationsPerDay;
 		this.maxNumDaysIncludedInDateRange = maxNumDaysIncludedInDateRange;
+		this.minDaysBeforeInitDateForBooking = minDaysBeforeInitDateForBooking;
+		this.maxDaysBeforeInitDateForBooking = maxDaysBeforeInitDateForBooking;
 		
 	}
 	
@@ -89,6 +97,22 @@ public class CampSiteDTO {
 	}
 	public void setMaxNumDaysIncludedInDateRange(Integer maxNumDaysIncludedInDateRange) {
 		this.maxNumDaysIncludedInDateRange = maxNumDaysIncludedInDateRange;
+	}
+
+	public Integer getMinDaysBeforeInitDateForBooking() {
+		return minDaysBeforeInitDateForBooking;
+	}
+
+	public void setMinDaysBeforeInitDateForBooking(Integer minDaysBeforeInitDateForBooking) {
+		this.minDaysBeforeInitDateForBooking = minDaysBeforeInitDateForBooking;
+	}
+
+	public Integer getMaxDaysBeforeInitDateForBooking() {
+		return maxDaysBeforeInitDateForBooking;
+	}
+
+	public void setMaxDaysBeforeInitDateForBooking(Integer maxDaysBeforeInitDateForBooking) {
+		this.maxDaysBeforeInitDateForBooking = maxDaysBeforeInitDateForBooking;
 	}
 
 }

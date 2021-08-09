@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.upgradeinc.extremecamp.customer.dto.CustomerCRUDResponseDTO;
 import com.upgradeinc.extremecamp.customer.dto.CustomerDTO;
 import com.upgradeinc.extremecamp.customer.dto.CustomerListResponseDTO;
+import com.upgradeinc.extremecamp.customer.dto.UpdateCustomerRequestDTO;
 import com.upgradeinc.extremecamp.customer.service.CustomerService;
 
 @RestController
@@ -41,7 +42,7 @@ public class CustomerRestController {
 	}
 	
 	@RequestMapping(path = {"/customers/update/{id}"},method = RequestMethod.PUT)
-	public ResponseEntity<CustomerCRUDResponseDTO> update(@PathVariable(name = "id") Long id,@Valid @RequestBody CustomerDTO request){
+	public ResponseEntity<CustomerCRUDResponseDTO> update(@PathVariable(name = "id") Long id,@Valid @RequestBody UpdateCustomerRequestDTO request){
 		
 		request.setId(id);
 		CustomerCRUDResponseDTO response = customerService.update(request);
