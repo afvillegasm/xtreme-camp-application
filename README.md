@@ -9,10 +9,10 @@ The solution consists in the definition of 5 microservices:
 * extreme-camp-booking-service: Contains the Rest API for the management of Bookings: create, update, cancel, validate a daterange for booking. The complete API can see at "localhost:8301/swagger-ui.html".
 * extreme-camp-api-service: Contains the Main Rest API for hidding details of each microservice behind. The complete API can see at "localhost:8401/swagger-ui.html".
 
-# DB Script
+# "DB SCRIPTS" FOLDER
 
 "DB SCRIPTS XTREMECAMP.txt" Contains the SQL Scripts for the creation of CAMPSITES, CUSTOMERS, BOOKINGS tables, and the insert sentence for the creation of CAMPSITE "VolcanoCamp".
 
-# LoadTest
+# "JMETER LOAD TEST PROJECT" FOLDER
 
 LoadTest through JMeter project "EXTREMECAMP.jmx", using a csv file "prueba.csv" for the simulation of customers making reservations.
